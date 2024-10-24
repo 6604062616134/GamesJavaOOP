@@ -33,7 +33,7 @@ public class Archer {
 
         currentImage = imgStand;
 
-        walkTimer = new Timer(200, new ActionListener() {
+        walkTimer = new Timer(150, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (isWalking) {

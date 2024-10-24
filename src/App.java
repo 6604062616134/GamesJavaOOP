@@ -25,6 +25,21 @@ public class App extends JFrame {
 
     URL startBtnImage = getClass().getResource("/buttons/start.png");
     URL exitBtnImage = getClass().getResource("/buttons/quit.png");
+
+    URL heartfull = getClass().getResource("/heart/heart.png");
+    Image imgHeartFull = new ImageIcon(heartfull).getImage();
+
+    URL heart2= getClass().getResource("/heart/heart2.png");
+    Image imgHeart2 = new ImageIcon(heart2).getImage();
+
+    URL heart3 = getClass().getResource("/heart/heart3.png");
+    Image imgHeart3 = new ImageIcon(heart3).getImage();
+
+    URL bar = getClass().getResource("/progressbar/bar.png");
+    Image imgBar = new ImageIcon(bar).getImage();
+
+    URL zombieIcon = getClass().getResource("/progressbar/zombieIcon.png");
+    Image imgZombieIcon = new ImageIcon(zombieIcon).getImage();
     
     private int bgX = 0;
     private boolean isTransitioning = false;
@@ -34,6 +49,7 @@ public class App extends JFrame {
     private Image currentImageZombie;
     private boolean isWalking = false;
     private boolean showTitle = true;
+    private boolean gameStarted = false;
 
     private Image[] backgrounds;
 
@@ -110,7 +126,9 @@ public class App extends JFrame {
            public void actionPerformed(ActionEvent e) {
                startBtn.setVisible(false);
                exitBtn.setVisible(false);
-               p.repaint();  // เริ่มเกมใหม่
+               gameStarted = true;
+               showTitle = false;
+               p.repaint();
            }
        });
        p.add(startBtn);
@@ -123,7 +141,7 @@ public class App extends JFrame {
         exitBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);  // ออกจากเกม
+                System.exit(0);
             }
         });
         p.add(exitBtn);
@@ -131,41 +149,40 @@ public class App extends JFrame {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (showTitle) {
-                    // Turn off the title screen on any key press
-                    showTitle = false;
-                    p.repaint();
-                }
-                if (!isTransitioning) {
-                    if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        if (archer.hasReachedEdge(getWidth())) {
-                            initiateSceneTransition();
-                        } else {
-                            archer.moveRight(); 
+                if(!showTitle){
+                    if (!isTransitioning) {
+                        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                            if (archer.hasReachedEdge(getWidth())) {
+                                initiateSceneTransition();
+                            } else {
+                                archer.moveRight(); 
+                            }
                         }
-                    }
-                    if(e.getKeyCode() == KeyEvent.VK_LEFT){
-                        if (archer.hasReachedEdge(getWidth())) {
-                            //ให้หยุดที่ขอบของหน้าจอ
-                            archer.stopWalking();
-                        } else {
-                            archer.moveLeft();
+                        if(e.getKeyCode() == KeyEvent.VK_LEFT){
+                            if (archer.hasReachedEdge(getWidth())) {
+                                //ให้หยุดที่ขอบของหน้าจอ
+                                archer.stopWalking();
+                            } else {
+                                archer.moveLeft();
+                            }
                         }
+                        p.repaint();
                     }
-                    p.repaint();
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    archer.stopWalking();
-                    p.repaint();
-                }
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    archer.stopWalkingLeft();
-                    archer.stopWalking();
-                    p.repaint();
+                if(!showTitle){
+                    if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                        archer.stopWalking();
+                        p.repaint();
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                        archer.stopWalkingLeft();
+                        archer.stopWalking();
+                        p.repaint();
+                    }
                 }
             }
         });
@@ -225,7 +242,26 @@ public class App extends JFrame {
             g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this); // Adjust the size
 
             // Draw the zombie character
-            g.drawImage(zombie.getCurrentImage(), zombie.getX(), zombie.getY(), 120, 150, this); // Adjust the size
+            if(gameStarted){
+                int zombiex = 900;
+                int zombiey = 350;
+                g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this); // Adjust the size
+
+                int heartX = 20;
+                int heartY = 20;
+                g.drawImage(imgHeartFull, heartX, heartY, 200, 50, this);
+                // g.drawImage(imgHeart2, heartX + 50, heartY, 50, 50, this);
+                // g.drawImage(imgHeart3, heartX + 100, heartY, 50, 50, this);
+
+                int barX = 820;
+                int barY = 25;
+                g.drawImage(imgBar, barX, barY, 320, 30, this);
+
+                int zombieIconX = 1090;
+                int zombieIconY = 17;
+                g.drawImage(imgZombieIcon, zombieIconX, zombieIconY, 50, 50, this);
+
+            }
 
             if (showTitle) {
                 int newWidth = 500; 
