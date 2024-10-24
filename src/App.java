@@ -103,28 +103,30 @@ public class App extends JFrame {
                         if (archer.hasReachedEdge(getWidth())) {
                             initiateSceneTransition(); // Trigger scene transition
                         } else {
-                            archer.moveRight(); // Move archer when right key is pressed
+                            archer.moveRight(); 
                         }
                     }
                     if(e.getKeyCode() == KeyEvent.VK_LEFT){
                         if (archer.hasReachedEdge(getWidth())) {
-                            initiateSceneTransition(); // Trigger scene transition
+                            //ให้หยุดที่ขอบของหน้าจอ
+                            archer.stopWalking();
                         } else {
-                            archer.moveLeft(); // Move archer when right key is pressed
+                            archer.moveLeft();
                         }
                     }
-                    p.repaint(); // Repaint the frame
+                    p.repaint();
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    archer.stopWalking(); // Stop archer when key is released
+                    archer.stopWalking();
                     p.repaint();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    archer.stopWalking(); // Stop archer when key is released
+                    archer.stopWalkingLeft();
+                    archer.stopWalking();
                     p.repaint();
                 }
             }

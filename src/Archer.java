@@ -11,6 +11,9 @@ public class Archer {
     private Image currentImage; // Currently displayed image
     private Timer walkTimer; // Timer to switch images for walking animation
     private boolean isWalking = false;
+    private Image imgWalkleft;
+    private Image imgWalkleft2;
+    private boolean isWalkingLeft = false;
 
     public Archer() {
         this.x = 250; // Initial x-coordinate
@@ -23,6 +26,12 @@ public class Archer {
         URL charWalk = getClass().getResource("/character/IMG_1001.png");
         imgWalk = new ImageIcon(charWalk).getImage();
 
+        URL charWalkleft = getClass().getResource("/character/left2.png");
+        imgWalkleft = new ImageIcon(charWalkleft).getImage();
+
+        URL charWalkleft2 = getClass().getResource("/character/leftwalk.png");
+        imgWalkleft2 = new ImageIcon(charWalkleft2).getImage();
+
         currentImage = imgStand; // Initially standing
 
         // Timer for switching between standing and walking images
@@ -32,6 +41,9 @@ public class Archer {
                 // Switch between standing and walking images
                 if (isWalking) {
                     currentImage = (currentImage == imgStand) ? imgWalk : imgStand;
+                }
+                if (isWalkingLeft) {
+                    currentImage = (currentImage == imgWalkleft) ? imgWalkleft2 : imgWalkleft;
                 }
             }
         });
@@ -43,11 +55,22 @@ public class Archer {
         walkTimer.start(); // Start switching between walking and standing
     }
 
+    public void startWalkingLeft() {
+        isWalkingLeft = true;
+        walkTimer.start(); // Start switching between walking and standing
+    }
+
     // Stop the walking animation and set the character back to standing
     public void stopWalking() {
         isWalking = false;
         walkTimer.stop(); // Stop switching images
         currentImage = imgStand; // Set image back to standing
+    }
+
+    public void stopWalkingLeft() {
+        isWalkingLeft = false;
+        walkTimer.stop(); // Stop switching images
+        currentImage = imgWalkleft; // Set image back to standing
     }
 
     // Move the character to the right
@@ -59,7 +82,7 @@ public class Archer {
     // Move the character to the left
     public void moveLeft() {
         x -= 10;
-        startWalking(); // Start walking animation when moving
+        startWalkingLeft(); // Start walking animation when moving
     }
 
     // Check if character has reached the right edge of the window
