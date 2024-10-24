@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.awt.event.*;
 
 public class App extends JFrame {
-    private int level;
-    private int score;
-    private int lives;
 
     URL bg1 = getClass().getResource("/background/IMG_0984.png");
     Image imgBG = new ImageIcon(bg1).getImage();
@@ -22,44 +19,52 @@ public class App extends JFrame {
 
     URL zombieWalk = getClass().getResource("/zombie/IMG_1055.png");
     Image imgZombieWalk = new ImageIcon(zombieWalk).getImage();
-    
-    private int bgX = 0; // x-coordinate of the background
-    private boolean isTransitioning = false; // flag for scene transition
-    private float fadeAlpha = 0; // alpha value for fade effect
-    private Image currentBackground; // Current background being displayed
-    private int currentBgIndex = 0; // To track the current background
-    private Image currentImageZombie;
-    private boolean isWalking = false; // Check if zombie is walking 
 
-    //Backgrounds array for easy access
+    URL title = getClass().getResource("/text/title.png");
+    Image imgTitle = new ImageIcon(title).getImage();
+
+    URL startBtnImage = getClass().getResource("/buttons/start.png");
+    URL exitBtnImage = getClass().getResource("/buttons/quit.png");
+    
+    private int bgX = 0;
+    private boolean isTransitioning = false;
+    private float fadeAlpha = 0;
+    private Image currentBackground;
+    private int currentBgIndex = 0;
+    private Image currentImageZombie;
+    private boolean isWalking = false;
+    private boolean showTitle = true;
+
     private Image[] backgrounds;
 
-    private Archer archer; // Archer character object
+    private Archer archer;
 
-    private Zombie zombie; // Zombie character object
+    final private Zombie zombie;
+
+    private JButton startBtn, exitBtn;
 
     App(){
-        //Initialize the array of backgrounds
         backgrounds = new Image[]{imgBG, imgBG2, imgBG3};
-        currentBackground = backgrounds[currentBgIndex]; // Set the initial background
+        currentBackground = backgrounds[currentBgIndex];
 
-        archer = new Archer(); // Create an Archer object
+        archer = new Archer();
 
         zombie = new Zombie(){
-            private int x = 0, y = 300; // Initial position of the zombie
+            private int x = 0;
+            final private int y = 300;
             @Override
             public void startWalking() {
-                isWalking = true; // Set walking state
+                isWalking = true;
             }
 
             @Override
             public void stopWalking() {
-                isWalking = false; // Stop walking
+                isWalking = false;
             }
 
             @Override
             public void moveRight() {
-                x += 5; // Move zombie to the right
+                x += 5;
             }
 
             @Override
@@ -69,39 +74,72 @@ public class App extends JFrame {
 
             @Override
             public void resetPosition() {
-                x = 0; // Reset zombie position to the start
+                x = 0;
             }
 
             @Override
             public int getX() {
-                return x; // Return current x-coordinate
+                return x;
             }
 
             @Override
             public int getY() {
-                return y; // Return current y-coordinate
+                return y;
             }
 
             @Override
             public Image getCurrentImage() {
-                return imgZombie; // Return the zombie image
+                return imgZombie;
             }
         };
 
         DrawArea p = new DrawArea();
+        p.setLayout(null);
 
-        currentImageZombie = imgZombie; // Initially standing
+        currentImageZombie = imgZombie;
 
         add(p);
 
-        // Add key listener to detect movement and transition
+       // Add Start Button with Image
+       startBtn = new JButton(new ImageIcon(startBtnImage));
+       startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);  // ตั้งตำแหน่งปุ่ม Start
+       startBtn.setBorderPainted(false);  // ลบเส้นขอบ
+       startBtn.setContentAreaFilled(false);  // ลบพื้นหลัง
+       startBtn.addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed(ActionEvent e) {
+               startBtn.setVisible(false);
+               exitBtn.setVisible(false);
+               p.repaint();  // เริ่มเกมใหม่
+           }
+       });
+       p.add(startBtn);
+
+        // Add Exit Button with Image
+        exitBtn = new JButton(new ImageIcon(exitBtnImage));
+        exitBtn.setBounds(1200 / 2 - 100, 500, 200, 50);  // ตั้งตำแหน่งปุ่ม Quit
+        exitBtn.setBorderPainted(false);  // ลบเส้นขอบ
+        exitBtn.setContentAreaFilled(false);  // ลบพื้นหลัง
+        exitBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);  // ออกจากเกม
+            }
+        });
+        p.add(exitBtn);
+
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (showTitle) {
+                    // Turn off the title screen on any key press
+                    showTitle = false;
+                    p.repaint();
+                }
                 if (!isTransitioning) {
                     if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
                         if (archer.hasReachedEdge(getWidth())) {
-                            initiateSceneTransition(); // Trigger scene transition
+                            initiateSceneTransition();
                         } else {
                             archer.moveRight(); 
                         }
@@ -132,22 +170,19 @@ public class App extends JFrame {
             }
         });
 
-        setFocusable(true); // Ensure key events are captured
+        setFocusable(true);
 
-        // Create a Timer to make the zombie move continuously
         Timer zombieTimer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (isWalking) {
                     currentImageZombie = (currentImageZombie == imgZombie) ? imgZombie : imgZombieWalk;
                 }
-                repaint(); // Redraw the screen to update zombie's position
+                repaint();
             }
         });
-        zombieTimer.start(); // Start the zombie movement
+        zombieTimer.start();
     }
-
-
 
     private void initiateSceneTransition() {
         isTransitioning = true;
@@ -192,6 +227,14 @@ public class App extends JFrame {
             // Draw the zombie character
             g.drawImage(zombie.getCurrentImage(), zombie.getX(), zombie.getY(), 120, 150, this); // Adjust the size
 
+            if (showTitle) {
+                int newWidth = 500; 
+                int newHeight = 130;
+                int x = 1200/2 - newWidth/2;
+                int y = 150;
+                g.drawImage(imgTitle, x, y, newWidth, newHeight, this);
+            }
+
             // If transitioning, draw a black rectangle with transparency
             if (isTransitioning) {
                 Graphics2D g2d = (Graphics2D) g;
@@ -207,7 +250,7 @@ public class App extends JFrame {
         
         frame.setTitle("Word archer : Zombie hunt");
         frame.setSize(1200, 750);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close frame and return memory to OS
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }

@@ -4,22 +4,21 @@ import java.net.URL;
 import javax.swing.*;
 
 public class Archer {
-    private int x; // x-coordinate of the character
-    private int y; // y-coordinate of the character
-    private Image imgStand; // Image when standing
-    private Image imgWalk; // Image when walking
-    private Image currentImage; // Currently displayed image
-    private Timer walkTimer; // Timer to switch images for walking animation
+    private int x;
+    final private int y;
+    private Image imgStand;
+    private Image imgWalk;
+    private Image currentImage;
+    final private Timer walkTimer;
     private boolean isWalking = false;
     private Image imgWalkleft;
     private Image imgWalkleft2;
     private boolean isWalkingLeft = false;
 
     public Archer() {
-        this.x = 250; // Initial x-coordinate
-        this.y = 350; // Initial y-coordinate
+        this.x = 250;
+        this.y = 350;
 
-        // Load images for standing and walking
         URL char1 = getClass().getResource("/character/IMG_1002.png");
         imgStand = new ImageIcon(char1).getImage();
         
@@ -32,13 +31,11 @@ public class Archer {
         URL charWalkleft2 = getClass().getResource("/character/leftwalk.png");
         imgWalkleft2 = new ImageIcon(charWalkleft2).getImage();
 
-        currentImage = imgStand; // Initially standing
+        currentImage = imgStand;
 
-        // Timer for switching between standing and walking images
         walkTimer = new Timer(200, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Switch between standing and walking images
                 if (isWalking) {
                     currentImage = (currentImage == imgStand) ? imgWalk : imgStand;
                 }
@@ -49,63 +46,54 @@ public class Archer {
         });
     }
 
-    // Start the walking animation
     public void startWalking() {
         isWalking = true;
-        walkTimer.start(); // Start switching between walking and standing
+        walkTimer.start();
     }
 
     public void startWalkingLeft() {
         isWalkingLeft = true;
-        walkTimer.start(); // Start switching between walking and standing
+        walkTimer.start();
     }
 
-    // Stop the walking animation and set the character back to standing
     public void stopWalking() {
         isWalking = false;
-        walkTimer.stop(); // Stop switching images
-        currentImage = imgStand; // Set image back to standing
+        walkTimer.stop();
+        currentImage = imgStand;
     }
 
     public void stopWalkingLeft() {
         isWalkingLeft = false;
-        walkTimer.stop(); // Stop switching images
-        currentImage = imgWalkleft; // Set image back to standing
+        walkTimer.stop();
+        currentImage = imgWalkleft;
     }
 
-    // Move the character to the right
     public void moveRight() {
         x += 10;
-        startWalking(); // Start walking animation when moving
+        startWalking();
     }
 
-    // Move the character to the left
     public void moveLeft() {
         x -= 10;
-        startWalkingLeft(); // Start walking animation when moving
+        startWalkingLeft();
     }
 
-    // Check if character has reached the right edge of the window
     public boolean hasReachedEdge(int windowWidth) {
-        return x + 200 >= windowWidth; // Assuming character width is 200px
+        return x + 200 >= windowWidth;
     }
 
-    // Reset the character's position
     public void resetPosition() {
-        x = 250; // Reset to the initial position
+        x = 250; 
     }
 
-    // Getter for x-coordinate
     public int getX() {
         return x;
     }
 
-    // Getter for y-coordinate
     public int getY() {
         return y;
     }
 
-    // Getter for current image to display
     public Image getCurrentImage() {
         return currentImage;
     }
