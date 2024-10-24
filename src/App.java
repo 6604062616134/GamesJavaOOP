@@ -2,33 +2,41 @@ import java.awt.*;
 import java.net.URL;
 import javax.swing.*;
 import java.awt.event.*;
-import javax.swing.Timer;
 
-public class App extends JFrame implements Zombie {
+public class App extends JFrame {
     private int level;
     private int score;
     private int lives;
 
-    URL bg1 = getClass().getResource("IMG_0984.png");
+    URL bg1 = getClass().getResource("/background/IMG_0984.png");
     Image imgBG = new ImageIcon(bg1).getImage();
     
-    URL bg2 = getClass().getResource("IMG_0985.png");
+    URL bg2 = getClass().getResource("/background/IMG_0985.png");
     Image imgBG2 = new ImageIcon(bg2).getImage();
     
-    URL bg3 = getClass().getResource("IMG_0986.png");
+    URL bg3 = getClass().getResource("/background/IMG_0986.png");
     Image imgBG3 = new ImageIcon(bg3).getImage();
 
+    URL zombie1 = getClass().getResource("/zombie/IMG_1053.png");
+    Image imgZombie = new ImageIcon(zombie1).getImage();
+
+    URL zombieWalk = getClass().getResource("/zombie/IMG_1055.png");
+    Image imgZombieWalk = new ImageIcon(zombieWalk).getImage();
     
     private int bgX = 0; // x-coordinate of the background
     private boolean isTransitioning = false; // flag for scene transition
     private float fadeAlpha = 0; // alpha value for fade effect
     private Image currentBackground; // Current background being displayed
     private int currentBgIndex = 0; // To track the current background
+    private Image currentImageZombie;
+    private boolean isWalking = false; // Check if zombie is walking 
 
     //Backgrounds array for easy access
     private Image[] backgrounds;
 
     private Archer archer; // Archer character object
+
+    private Zombie zombie; // Zombie character object
 
     App(){
         //Initialize the array of backgrounds
@@ -37,7 +45,53 @@ public class App extends JFrame implements Zombie {
 
         archer = new Archer(); // Create an Archer object
 
+        zombie = new Zombie(){
+            private int x = 0, y = 300; // Initial position of the zombie
+            @Override
+            public void startWalking() {
+                isWalking = true; // Set walking state
+            }
+
+            @Override
+            public void stopWalking() {
+                isWalking = false; // Stop walking
+            }
+
+            @Override
+            public void moveRight() {
+                x += 5; // Move zombie to the right
+            }
+
+            @Override
+            public boolean hasReachedEdge(int windowWidth) {
+                return x >= windowWidth;
+            }
+
+            @Override
+            public void resetPosition() {
+                x = 0; // Reset zombie position to the start
+            }
+
+            @Override
+            public int getX() {
+                return x; // Return current x-coordinate
+            }
+
+            @Override
+            public int getY() {
+                return y; // Return current y-coordinate
+            }
+
+            @Override
+            public Image getCurrentImage() {
+                return imgZombie; // Return the zombie image
+            }
+        };
+
         DrawArea p = new DrawArea();
+
+        currentImageZombie = imgZombie; // Initially standing
+
         add(p);
 
         // Add key listener to detect movement and transition
@@ -52,6 +106,13 @@ public class App extends JFrame implements Zombie {
                             archer.moveRight(); // Move archer when right key is pressed
                         }
                     }
+                    if(e.getKeyCode() == KeyEvent.VK_LEFT){
+                        if (archer.hasReachedEdge(getWidth())) {
+                            initiateSceneTransition(); // Trigger scene transition
+                        } else {
+                            archer.moveLeft(); // Move archer when right key is pressed
+                        }
+                    }
                     p.repaint(); // Repaint the frame
                 }
             }
@@ -62,11 +123,29 @@ public class App extends JFrame implements Zombie {
                     archer.stopWalking(); // Stop archer when key is released
                     p.repaint();
                 }
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    archer.stopWalking(); // Stop archer when key is released
+                    p.repaint();
+                }
             }
         });
 
         setFocusable(true); // Ensure key events are captured
+
+        // Create a Timer to make the zombie move continuously
+        Timer zombieTimer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (isWalking) {
+                    currentImageZombie = (currentImageZombie == imgZombie) ? imgZombie : imgZombieWalk;
+                }
+                repaint(); // Redraw the screen to update zombie's position
+            }
+        });
+        zombieTimer.start(); // Start the zombie movement
     }
+
+
 
     private void initiateSceneTransition() {
         isTransitioning = true;
@@ -96,7 +175,6 @@ public class App extends JFrame implements Zombie {
         transitionTimer.start();
     }
 
-    // Inner class for drawing area
     class DrawArea extends JPanel {
         @Override
         public void paintComponent(Graphics g) {
@@ -109,6 +187,9 @@ public class App extends JFrame implements Zombie {
             // Draw the archer character
             g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this); // Adjust the size
 
+            // Draw the zombie character
+            g.drawImage(zombie.getCurrentImage(), zombie.getX(), zombie.getY(), 120, 150, this); // Adjust the size
+
             // If transitioning, draw a black rectangle with transparency
             if (isTransitioning) {
                 Graphics2D g2d = (Graphics2D) g;
@@ -117,46 +198,6 @@ public class App extends JFrame implements Zombie {
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         }
-    }
-
-    @Override
-    public void startWalking() {
-        
-    }
-
-    @Override
-    public void stopWalking() {
-        
-    }
-
-    @Override
-    public void moveRight() {
-        
-    }
-
-    @Override
-    public boolean hasReachedEdge(int windowWidth) {
-        return false;
-    }
-
-    @Override
-    public void resetPosition() {
-        
-    }
-
-    @Override
-    public int getX() {
-        return 0;
-    }
-
-    @Override
-    public int getY() {
-        return 0;
-    }
-
-    @Override
-    public Image getCurrentImage() {
-        return null;
     }
 
     public static void main(String[] args) throws Exception {

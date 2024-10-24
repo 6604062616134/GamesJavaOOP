@@ -17,10 +17,10 @@ public class Archer {
         this.y = 350; // Initial y-coordinate
 
         // Load images for standing and walking
-        URL char1 = getClass().getResource("IMG_1002.png");
+        URL char1 = getClass().getResource("/character/IMG_1002.png");
         imgStand = new ImageIcon(char1).getImage();
         
-        URL charWalk = getClass().getResource("IMG_1001.png");
+        URL charWalk = getClass().getResource("/character/IMG_1001.png");
         imgWalk = new ImageIcon(charWalk).getImage();
 
         currentImage = imgStand; // Initially standing
@@ -53,6 +53,12 @@ public class Archer {
     // Move the character to the right
     public void moveRight() {
         x += 10;
+        startWalking(); // Start walking animation when moving
+    }
+
+    // Move the character to the left
+    public void moveLeft() {
+        x -= 10;
         startWalking(); // Start walking animation when moving
     }
 
