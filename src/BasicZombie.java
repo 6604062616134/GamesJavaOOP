@@ -5,11 +5,11 @@ public class BasicZombie extends Zombie{
 
     @Override
     public void Hurt() {
-        System.out.println("BasicZombie is hurt");
+        currentImageZombie = imgZombieHurt;
     }
 
     @Override
     public void eat() {
-        System.out.println("BasicZombie is eating");
+        currentImageZombie = imgZombieEat;
     }
 }

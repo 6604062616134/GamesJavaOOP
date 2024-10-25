@@ -2,6 +2,7 @@ import java.awt.*;
 import java.net.URL;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class App extends JFrame {
 
@@ -13,6 +14,7 @@ public class App extends JFrame {
     
     URL bg3 = getClass().getResource("/background/IMG_0986.png");
     Image imgBG3 = new ImageIcon(bg3).getImage();
+
 
     URL title = getClass().getResource("/text/title.png");
     Image imgTitle = new ImageIcon(title).getImage();
@@ -42,6 +44,8 @@ public class App extends JFrame {
     private int currentBgIndex = 0;
     private boolean showTitle = true;
     private boolean gameStarted = false;
+    private StringBuilder inputBuffer = new StringBuilder();
+    private boolean finishTyped = false;
 
     final private Image[] backgrounds;
 
@@ -52,37 +56,41 @@ public class App extends JFrame {
     private Zombie zombie;
 
     private Zombie boss;
+    
+    private final Text text;
 
     App(){
         backgrounds = new Image[]{imgBG, imgBG2, imgBG3};
         currentBackground = backgrounds[currentBgIndex];
 
-        archer = new Archer();
-        
         DrawArea p = new DrawArea();
         p.setLayout(null);
+        archer = new Archer();
+        
         
         zombie = new BasicZombie(this);
         //boss = new Boss();
 
+        text = new Text();
+
         add(p);
 
-       startBtn = new JButton(new ImageIcon(startBtnImage));
-       startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);
-       startBtn.setBorderPainted(false); 
-       startBtn.setContentAreaFilled(false);
-       startBtn.addActionListener(new ActionListener() {
-           @Override
-           public void actionPerformed(ActionEvent e) {
-               startBtn.setVisible(false);
-               exitBtn.setVisible(false);
-               gameStarted = true;
-               showTitle = false;
-               zombie.startWalking();
-               p.repaint();
-           }
-       });
-       p.add(startBtn);
+        startBtn = new JButton(new ImageIcon(startBtnImage));
+        startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);
+        startBtn.setBorderPainted(false); 
+        startBtn.setContentAreaFilled(false);
+        startBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startBtn.setVisible(false);
+                exitBtn.setVisible(false);
+                gameStarted = true;
+                showTitle = false;
+                zombie.startWalking();
+                p.repaint();
+            }
+        });
+        p.add(startBtn);
 
         exitBtn = new JButton(new ImageIcon(exitBtnImage));
         exitBtn.setBounds(1200 / 2 - 100, 500, 200, 50);
@@ -135,6 +143,21 @@ public class App extends JFrame {
                     }
                 }
             }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (!showTitle) {
+                    char keyChar = e.getKeyChar();
+                    inputBuffer.append(keyChar);
+
+                    if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
+                        finishTyped = true;
+                        archer.shoot();  // เรียกเมธอด shoot() ของ Archer
+                        p.repaint();      // เรียก repaint เพื่อให้การเปลี่ยนแปลงปรากฏ
+                        inputBuffer.setLength(0);
+                    }
+                }
+            }
         });
 
         setFocusable(true);
@@ -173,14 +196,12 @@ public class App extends JFrame {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             
-            // Draw the current background image
             g.drawImage(currentBackground, bgX, 0, getWidth(), getHeight(), this);
             g.drawImage(currentBackground, bgX + getWidth(), 0, getWidth(), getHeight(), this);
 
             // Draw the archer character
-            g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
+            // g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
 
-            // Draw the zombie character
             if(gameStarted){
                 int zombiex = zombie.getX();
                 int zombiey = zombie.getY();
@@ -200,6 +221,18 @@ public class App extends JFrame {
                 int zombieIconY = 17;
                 g.drawImage(imgZombieIcon, zombieIconX, zombieIconY, 50, 50, this);
 
+                int textX = 1200 / 2 - 150;
+                int textY = 150;
+                g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this);
+                if (finishTyped) {
+                    g.drawImage(text.getImgdinner2(), textX, textY, 300, 50, this);
+                }
+                g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
+
+                for (Archer.Arrow arrow : archer.getArrows()) {
+                    arrow.move();
+                    g.drawImage(arrow.getImg(), arrow.getX(), arrow.getY(), 80, 30, null);
+                }
             }
 
             if (showTitle) {

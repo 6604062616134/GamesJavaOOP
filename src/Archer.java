@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class Archer {
     private int x;
@@ -14,11 +15,16 @@ public class Archer {
     private Image imgWalkleft;
     private Image imgWalkleft2;
     private boolean isWalkingLeft = false;
+    private final Image imgAttacking;
+    private boolean isAttacking = false;
+    private final ArrayList<Arrow> arrows; // รายการลูกศรที่ยิงออกไป
+    private final Image imgArrow;
 
     public Archer() {
         this.x = 250;
         this.y = 350;
 
+        // โหลดภาพต่างๆ
         URL char1 = getClass().getResource("/character/IMG_1002.png");
         imgStand = new ImageIcon(char1).getImage();
         
@@ -31,8 +37,18 @@ public class Archer {
         URL charWalkleft2 = getClass().getResource("/character/leftwalk.png");
         imgWalkleft2 = new ImageIcon(charWalkleft2).getImage();
 
+        // โหลดภาพลูกศร
+        URL arrow = getClass().getResource("/character/arrow.png");
+        imgArrow = new ImageIcon(arrow).getImage();
+
+        URL attack = getClass().getResource("/character/attack.png");
+        imgAttacking = new ImageIcon(attack).getImage();
+
         currentImage = imgStand;
 
+        arrows = new ArrayList<>();
+
+        // ตั้งค่า Timer สำหรับการเดิน
         walkTimer = new Timer(150, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -97,4 +113,74 @@ public class Archer {
     public Image getCurrentImage() {
         return currentImage;
     }
+
+    public void shoot() {
+        if (isAttacking) {
+            return; // ถ้ากำลังโจมตีอยู่แล้ว ไม่ให้ยิงอีก
+        }
+    
+        System.out.println("Shooting arrow");
+        isAttacking = true;
+        currentImage = imgAttacking;
+    
+        // สร้างลูกศรใหม่และเพิ่มลงในอาร์เรย์
+        arrows.add(new Arrow(300, 435, imgArrow));
+    
+        Timer attackTimer = new Timer(200, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentImage = imgStand;
+                isAttacking = false; // เปลี่ยนสถานะกลับเป็นไม่โจมตี
+                ((Timer)e.getSource()).stop();
+            }
+        });
+        attackTimer.setRepeats(false);
+        attackTimer.start();
+    }
+    
+
+    public ArrayList<Archer.Arrow> getArrows() {
+        return arrows;
+    }
+
+    public class Arrow {
+        private int x = 250;
+        private int y = 350;
+        private Image img;
+
+        public Arrow(int x, int y, Image img) {
+            this.x = x;
+            this.y = y;
+            this.img = img;
+        }
+
+        public void move() {
+            x += 30;
+        }
+
+        public void draw(Graphics g) {
+            g.drawImage(img, x, y, 50, 20, null); // วาดลูกศร
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
+
+        public Image getImg() {
+            return img;
+        }
+    }
+
 }

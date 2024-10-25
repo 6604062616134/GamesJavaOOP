@@ -18,6 +18,30 @@ public abstract class  Zombie {
     URL zombieWalk = getClass().getResource("/zombie/IMG_1055.png");
     Image imgZombieWalk = new ImageIcon(zombieWalk).getImage();
 
+    URL zombieHurt = getClass().getResource("/zombie/zombiehurt.png");
+    Image imgZombieHurt = new ImageIcon(zombieHurt).getImage();
+
+    URL zombieEat = getClass().getResource("/zombie/zombieeat.png");
+    Image imgZombieEat = new ImageIcon(zombieEat).getImage();
+
+    URL bossDead = getClass().getResource("/boss/boss1.png");
+    Image imgBossDead = new ImageIcon(bossDead).getImage();
+
+    URL bossHurt = getClass().getResource("/boss/boss2.png");
+    Image imgBossHurt = new ImageIcon(bossHurt).getImage();
+
+    URL bossDamaged = getClass().getResource("/boss/boss3.png");
+    Image imgBossDamaged = new ImageIcon(bossDamaged).getImage();
+
+    URL boss = getClass().getResource("/boss/boss4.png");
+    Image imgBoss = new ImageIcon(boss).getImage();
+
+    URL bossWalk = getClass().getResource("/boss/bosswalk.png");
+    Image imgBossWalk = new ImageIcon(bossWalk).getImage();
+
+    URL bossHurtWalk = getClass().getResource("/boss/bosshurtwalk.png");
+    Image imgBossHurtWalk = new ImageIcon(bossHurtWalk).getImage();
+
     public Zombie(App app) {
         this.app = app;
         zombieTimer = new Timer(150, e -> {
