@@ -47,17 +47,17 @@ public class App extends JFrame {
     private Image currentBackground;
     private int currentBgIndex = 0;
     private Image currentImageZombie;
-    private boolean isWalking = false;
     private boolean showTitle = true;
     private boolean gameStarted = false;
 
-    private Image[] backgrounds;
+    final private Image[] backgrounds;
 
     private Archer archer;
 
-    final private Zombie zombie;
-
     private JButton startBtn, exitBtn;
+
+    final private Timer zombieTimer;
+    private Zombie zombie;
 
     App(){
         backgrounds = new Image[]{imgBG, imgBG2, imgBG3};
@@ -65,62 +65,27 @@ public class App extends JFrame {
 
         archer = new Archer();
 
-        zombie = new Zombie(){
-            private int x = 0;
-            final private int y = 300;
+        zombieTimer = new Timer(200, new ActionListener() {
             @Override
-            public void startWalking() {
-                isWalking = true;
+            public void actionPerformed(ActionEvent e) {
+                if (zombie.isWalking()) {
+                    zombie.moveLeft();
+                    repaint();
+                }
             }
-
-            @Override
-            public void stopWalking() {
-                isWalking = false;
-            }
-
-            @Override
-            public void moveRight() {
-                x += 5;
-            }
-
-            @Override
-            public boolean hasReachedEdge(int windowWidth) {
-                return x >= windowWidth;
-            }
-
-            @Override
-            public void resetPosition() {
-                x = 0;
-            }
-
-            @Override
-            public int getX() {
-                return x;
-            }
-
-            @Override
-            public int getY() {
-                return y;
-            }
-
-            @Override
-            public Image getCurrentImage() {
-                return imgZombie;
-            }
-        };
+        });
+        zombie = new ZombieImpl(zombieTimer);
 
         DrawArea p = new DrawArea();
         p.setLayout(null);
-
-        currentImageZombie = imgZombie;
 
         add(p);
 
        // Add Start Button with Image
        startBtn = new JButton(new ImageIcon(startBtnImage));
-       startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);  // ตั้งตำแหน่งปุ่ม Start
-       startBtn.setBorderPainted(false);  // ลบเส้นขอบ
-       startBtn.setContentAreaFilled(false);  // ลบพื้นหลัง
+       startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);
+       startBtn.setBorderPainted(false); 
+       startBtn.setContentAreaFilled(false);
        startBtn.addActionListener(new ActionListener() {
            @Override
            public void actionPerformed(ActionEvent e) {
@@ -128,6 +93,7 @@ public class App extends JFrame {
                exitBtn.setVisible(false);
                gameStarted = true;
                showTitle = false;
+               zombie.startWalking();
                p.repaint();
            }
        });
@@ -135,9 +101,9 @@ public class App extends JFrame {
 
         // Add Exit Button with Image
         exitBtn = new JButton(new ImageIcon(exitBtnImage));
-        exitBtn.setBounds(1200 / 2 - 100, 500, 200, 50);  // ตั้งตำแหน่งปุ่ม Quit
-        exitBtn.setBorderPainted(false);  // ลบเส้นขอบ
-        exitBtn.setContentAreaFilled(false);  // ลบพื้นหลัง
+        exitBtn.setBounds(1200 / 2 - 100, 500, 200, 50);
+        exitBtn.setBorderPainted(false);
+        exitBtn.setContentAreaFilled(false);
         exitBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -188,17 +154,75 @@ public class App extends JFrame {
         });
 
         setFocusable(true);
+    }
 
-        Timer zombieTimer = new Timer(100, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isWalking) {
-                    currentImageZombie = (currentImageZombie == imgZombie) ? imgZombie : imgZombieWalk;
-                }
-                repaint();
-            }
-        });
-        zombieTimer.start();
+    class ZombieImpl implements Zombie {
+        private int x = 900;
+        private final int y = 350;
+        private boolean zombieisWalking = false;
+        final private Timer zombieTimer;
+        private boolean isImageZombie = true;
+    
+        public ZombieImpl(Timer timer) {
+            this.zombieTimer = timer;
+        }
+    
+        @Override
+        public void startWalking() {
+            zombieisWalking = true;
+            zombieTimer.start();
+            currentImageZombie = imgZombieWalk;
+            System.out.println("Zombie is walking");
+        }
+    
+        @Override
+        public void stopWalking() {
+            zombieisWalking = false;
+            zombieTimer.stop();
+        }
+        
+        @Override
+        public boolean isWalking() {
+            return zombieisWalking;
+        }
+    
+        @Override
+        public void moveLeft() {
+            x -= 2;
+            isImageZombie = !isImageZombie;
+        }
+    
+        @Override
+        public boolean reachArcher(int width) {
+            return x <= 0;
+        }
+    
+        @Override
+        public void resetPosition() {
+            x = 900;
+        }
+    
+        @Override
+        public int getX() {
+            return x;
+        }
+    
+        @Override
+        public int getY() {
+            return y;
+        }
+    
+        @Override
+        public Image getCurrentImage() {
+            return isImageZombie ? imgZombie : imgZombieWalk;
+        }
+    
+        @Override
+        public void eat() {
+            // กำหนดพฤติกรรมเมื่อ zombie "กิน" archer
+        }
+
+
     }
 
     private void initiateSceneTransition() {
@@ -239,13 +263,13 @@ public class App extends JFrame {
             g.drawImage(currentBackground, bgX + getWidth(), 0, getWidth(), getHeight(), this);
 
             // Draw the archer character
-            g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this); // Adjust the size
+            g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
 
             // Draw the zombie character
             if(gameStarted){
-                int zombiex = 900;
-                int zombiey = 350;
-                g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this); // Adjust the size
+                int zombiex = zombie.getX();
+                int zombiey = zombie.getY();
+                g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
 
                 int heartX = 20;
                 int heartY = 20;
