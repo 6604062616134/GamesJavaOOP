@@ -14,12 +14,6 @@ public class App extends JFrame {
     URL bg3 = getClass().getResource("/background/IMG_0986.png");
     Image imgBG3 = new ImageIcon(bg3).getImage();
 
-    URL zombie1 = getClass().getResource("/zombie/IMG_1053.png");
-    Image imgZombie = new ImageIcon(zombie1).getImage();
-
-    URL zombieWalk = getClass().getResource("/zombie/IMG_1055.png");
-    Image imgZombieWalk = new ImageIcon(zombieWalk).getImage();
-
     URL title = getClass().getResource("/text/title.png");
     Image imgTitle = new ImageIcon(title).getImage();
 
@@ -46,7 +40,6 @@ public class App extends JFrame {
     private float fadeAlpha = 0;
     private Image currentBackground;
     private int currentBgIndex = 0;
-    private Image currentImageZombie;
     private boolean showTitle = true;
     private boolean gameStarted = false;
 
@@ -56,32 +49,24 @@ public class App extends JFrame {
 
     private JButton startBtn, exitBtn;
 
-    final private Timer zombieTimer;
     private Zombie zombie;
+
+    private Zombie boss;
 
     App(){
         backgrounds = new Image[]{imgBG, imgBG2, imgBG3};
         currentBackground = backgrounds[currentBgIndex];
 
         archer = new Archer();
-
-        zombieTimer = new Timer(200, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (zombie.isWalking()) {
-                    zombie.moveLeft();
-                    repaint();
-                }
-            }
-        });
-        zombie = new ZombieImpl(zombieTimer);
-
+        
         DrawArea p = new DrawArea();
         p.setLayout(null);
+        
+        zombie = new BasicZombie(this);
+        //boss = new Boss();
 
         add(p);
 
-       // Add Start Button with Image
        startBtn = new JButton(new ImageIcon(startBtnImage));
        startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);
        startBtn.setBorderPainted(false); 
@@ -99,7 +84,6 @@ public class App extends JFrame {
        });
        p.add(startBtn);
 
-        // Add Exit Button with Image
         exitBtn = new JButton(new ImageIcon(exitBtnImage));
         exitBtn.setBounds(1200 / 2 - 100, 500, 200, 50);
         exitBtn.setBorderPainted(false);
@@ -154,75 +138,6 @@ public class App extends JFrame {
         });
 
         setFocusable(true);
-    }
-
-    class ZombieImpl implements Zombie {
-        private int x = 900;
-        private final int y = 350;
-        private boolean zombieisWalking = false;
-        final private Timer zombieTimer;
-        private boolean isImageZombie = true;
-    
-        public ZombieImpl(Timer timer) {
-            this.zombieTimer = timer;
-        }
-    
-        @Override
-        public void startWalking() {
-            zombieisWalking = true;
-            zombieTimer.start();
-            currentImageZombie = imgZombieWalk;
-            System.out.println("Zombie is walking");
-        }
-    
-        @Override
-        public void stopWalking() {
-            zombieisWalking = false;
-            zombieTimer.stop();
-        }
-        
-        @Override
-        public boolean isWalking() {
-            return zombieisWalking;
-        }
-    
-        @Override
-        public void moveLeft() {
-            x -= 2;
-            isImageZombie = !isImageZombie;
-        }
-    
-        @Override
-        public boolean reachArcher(int width) {
-            return x <= 0;
-        }
-    
-        @Override
-        public void resetPosition() {
-            x = 900;
-        }
-    
-        @Override
-        public int getX() {
-            return x;
-        }
-    
-        @Override
-        public int getY() {
-            return y;
-        }
-    
-        @Override
-        public Image getCurrentImage() {
-            return isImageZombie ? imgZombie : imgZombieWalk;
-        }
-    
-        @Override
-        public void eat() {
-            // กำหนดพฤติกรรมเมื่อ zombie "กิน" archer
-        }
-
-
     }
 
     private void initiateSceneTransition() {
