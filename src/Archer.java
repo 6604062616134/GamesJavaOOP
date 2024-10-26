@@ -181,6 +181,14 @@ public class Archer {
         public Image getImg() {
             return img;
         }
+
+        public Image getImgArrow() {
+            return imgArrow;
+        }
+
+        public void remove(){
+            arrows.remove(this);
+        }
     }
 
 }

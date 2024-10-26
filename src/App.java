@@ -232,7 +232,17 @@ public class App extends JFrame {
                 for (Archer.Arrow arrow : archer.getArrows()) {
                     arrow.move();
                     g.drawImage(arrow.getImg(), arrow.getX(), arrow.getY(), 80, 30, null);
+                
+                    if (arrow.getX() + 80 > zombie.getX() && arrow.getX() < zombie.getX() + 120 && 
+                        arrow.getY() + 30 > zombie.getY() && arrow.getY() < zombie.getY() + 150) {
+                        
+                        zombie.takeDamage();
+                        archer.getArrows().remove(arrow);
+                        break; 
+                    }
                 }
+
+                
             }
 
             if (showTitle) {
