@@ -92,15 +92,19 @@ public abstract class  Zombie {
         return isImageZombie ? imgZombie : imgZombieWalk;
     }
 
+    public Image getImgZombieHurt() {
+        return imgZombieHurt;
+    }
+
     public void takeDamage() {
         currentImageZombie = imgZombieHurt;
         app.repaint(); // Update the screen to show the hurt image
     
         // Wait 150ms to show the hurt image before removing the zombie
-        Timer delayTimer = new Timer(150, e -> {
-            Timer removeZombieTimer = new Timer(200, ev -> {
+        Timer delayTimer = new Timer(100, e -> {
+            Timer removeZombieTimer = new Timer(100, ev -> {
                 stopWalking();
-                x = -1000; // Move it off-screen
+                x = -1000;
                 app.repaint();
                 ((Timer) ev.getSource()).stop();
             });
@@ -112,6 +116,7 @@ public abstract class  Zombie {
         delayTimer.setRepeats(false);
         delayTimer.start();
     }
+    
 
     public abstract void eat();
 

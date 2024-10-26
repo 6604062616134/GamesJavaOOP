@@ -155,7 +155,7 @@ public class Archer {
         }
 
         public void move() {
-            x += 30;
+            x += 100;
         }
 
         public void draw(Graphics g) {

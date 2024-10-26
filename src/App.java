@@ -36,6 +36,9 @@ public class App extends JFrame {
 
     URL zombieIcon = getClass().getResource("/progressbar/zombieIcon.png");
     Image imgZombieIcon = new ImageIcon(zombieIcon).getImage();
+
+    URL tryAgain = getClass().getResource("/text/tryagain.png");
+    Image imgTryAgain = new ImageIcon(tryAgain).getImage();
     
     private int bgX = 0;
     private boolean isTransitioning = false;
@@ -46,6 +49,10 @@ public class App extends JFrame {
     private boolean gameStarted = false;
     private StringBuilder inputBuffer = new StringBuilder();
     private boolean finishTyped = false;
+    private int state = 0;
+    private Timer house1Timer;
+    private boolean showTryAgain = false;
+    private Timer tryAgainTimer;
 
     final private Image[] backgrounds;
 
@@ -57,7 +64,7 @@ public class App extends JFrame {
 
     private Zombie boss;
     
-    private final Text text;
+    private Text text;
 
     App(){
         backgrounds = new Image[]{imgBG, imgBG2, imgBG3};
@@ -104,6 +111,21 @@ public class App extends JFrame {
         });
         p.add(exitBtn);
 
+        house1Timer = new Timer(200, e -> {
+            finishTyped = false; // รีเซ็ต finishTyped เพื่ออนุญาตให้พิมพ์ได้
+            state = 2; // เปลี่ยนไปแสดง house1
+            p.repaint(); // รีเฟรชเพื่อแสดง house1
+            house1Timer.stop(); // หยุด timer หลังจากแสดง house1
+        });
+
+        tryAgainTimer = new Timer(500, e -> { // Show for 2 seconds
+            showTryAgain = false; // Hide "Try Again" message
+            inputBuffer.setLength(0); // Clear input buffer
+            state = 0; // Reset state back to 0
+            repaint(); // Refresh to show the updated state
+            tryAgainTimer.stop(); // Stop the timer
+        });
+
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -148,16 +170,54 @@ public class App extends JFrame {
             public void keyTyped(KeyEvent e) {
                 if (!showTitle) {
                     char keyChar = e.getKeyChar();
-                    inputBuffer.append(keyChar);
-
-                    if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
-                        finishTyped = true;
-                        archer.shoot();  // เรียกเมธอด shoot() ของ Archer
-                        p.repaint();      // เรียก repaint เพื่อให้การเปลี่ยนแปลงปรากฏ
-                        inputBuffer.setLength(0);
+                    inputBuffer.append(keyChar); // Add the typed character to the buffer
+            
+                    // Check the input based on the current state
+                    if (state == 0) {
+                        if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
+                            archer.shoot();
+                            inputBuffer.setLength(0); // Clear input buffer
+                            state = 1; // Move to show dinner2
+                            finishTyped = true; // Mark finishTyped as true
+                            repaint(); // Refresh the screen to show dinner2
+                            house1Timer.start(); // Start timer for house1
+                        } else if (inputBuffer.length() >= 6) { // If input is longer than "dinner"
+                            inputBuffer.setLength(0); // Clear input buffer
+                            state = -1; // Set state to -1 for incorrect input
+                            showTryAgain = true; // Show "Try Again" message
+                            repaint(); // Refresh the screen to show "Try Again"
+                            tryAgainTimer.start(); // Start the timer to hide "Try Again" after 2 seconds
+                        }
+                    } else if (state == 1) {
+                        if (finishTyped) {
+                            finishTyped = false; // Reset finishTyped
+                            state = 2; // Move to show house1
+                            repaint(); // Refresh to show house1
+                        }
+                    } else if (state == 2) {
+                        if (inputBuffer.toString().equalsIgnoreCase("house")) {
+                            archer.shoot();
+                            inputBuffer.setLength(0); // Clear input buffer
+                            finishTyped = true; // Mark finishTyped as true
+                            state = 3; // Move to show house2
+                            repaint(); // Refresh to show house2
+                        } else if (inputBuffer.length() >= 5) { // If input is longer than 5 characters
+                            inputBuffer.setLength(0); // Clear input buffer
+                            state = -1; // Set state to -1 for incorrect input
+                            showTryAgain = true; // Show "Try Again" message
+                            repaint(); // Refresh the screen to show "Try Again"
+                            tryAgainTimer.start(); // Start the timer to hide "Try Again" after 2 seconds
+                        }
+                    } else if (state == 3) {
+                        if (finishTyped) {
+                            finishTyped = false; // Reset finishTyped
+                            state = 4; // End the show
+                            repaint(); // Refresh to show the end
+                        }
                     }
                 }
             }
+
         });
 
         setFocusable(true);
@@ -191,6 +251,7 @@ public class App extends JFrame {
         transitionTimer.start();
     }
 
+
     class DrawArea extends JPanel {
         @Override
         public void paintComponent(Graphics g) {
@@ -223,10 +284,21 @@ public class App extends JFrame {
 
                 int textX = 1200 / 2 - 150;
                 int textY = 150;
-                g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this);
-                if (finishTyped) {
+
+                if (state == 0) {
+                    g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this);
+                } else if (state == 1) {
                     g.drawImage(text.getImgdinner2(), textX, textY, 300, 50, this);
+                } else if (state == 2) {
+                    g.drawImage(text.getImghouse1(), textX, textY, 300, 50, this);
+                } else if (state == 3) {
+                    g.drawImage(text.getImghouse2(), textX, textY, 300, 50, this);
                 }
+
+                if (showTryAgain) {
+                    g.drawImage(imgTryAgain, 475, 600, 200, 30, this);
+                }
+
                 g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
 
                 for (Archer.Arrow arrow : archer.getArrows()) {
