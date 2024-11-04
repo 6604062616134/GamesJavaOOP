@@ -77,10 +77,8 @@ public class App extends JFrame {
     private StringBuilder inputBuffer = new StringBuilder();
     private boolean showTryAgain = false;
     private Timer tryAgainTimer;
-    private int previousState = 0;
     private boolean finishTyped = false;
     private int state = 0;
-    private Timer zombieSpawnTimer;
 
     final private Image[] backgrounds;
 
@@ -136,21 +134,21 @@ public class App extends JFrame {
         p.add(exitBtn);
 
         //easy
-        dinner1Timer = new Timer(200, e -> {
+        dinner1Timer = new Timer(100, e -> {
             finishTyped = false;
             state = 1;
             p.repaint();
             dinner1Timer.stop();
         });
 
-        house1Timer = new Timer(200, e -> {
+        house1Timer = new Timer(100, e -> {
             finishTyped = false; // รีเซ็ต finishTyped เพื่ออนุญาตให้พิมพ์ได้
             state = 2; // เปลี่ยนไปแสดง house1
             p.repaint(); // รีเฟรชเพื่อแสดง house1
             house1Timer.stop(); // หยุด timer หลังจากแสดง house1
         });
 
-        morning1Timer = new Timer(200, e -> {
+        morning1Timer = new Timer(100, e -> {
             finishTyped = false;
             state = 4;
             p.repaint();
@@ -260,6 +258,23 @@ public class App extends JFrame {
                                     repaint();
                                 }
                                 break;
+                            case 4:
+                                if (inputBuffer.toString().equalsIgnoreCase("morning")) {
+                                    archer.shoot();
+                                    inputBuffer.setLength(0);
+                                    finishTyped = true;
+                                    state = 5; // เปลี่ยนไปคำถัดไป
+                                    zombie.stopWalking();
+                                    spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
+                                    music1Timer.start();
+                                    repaint();
+                                } else if (inputBuffer.length() > 7) {
+                                    showTryAgain = true;
+                                    tryAgainTimer.start();
+                                    inputBuffer.setLength(0);
+                                    repaint();
+                                }
+                                break;
                         }
                     }
                 }
@@ -271,8 +286,11 @@ public class App extends JFrame {
     }
 
     private void spawnNewZombie() {
+        if (zombie != null) {
+            zombie.stopWalking(); // หยุดการเดินของซอมบี้เก่า
+        }
         zombie = new BasicZombie(this); // ใช้ polymorphism เพื่อสร้างซอมบี้ใหม่
-        zombie.startWalking(); // ซอมบี้ตัวใหม่เริ่มเดินทันทีที่สร้าง
+        zombie.startWalking();
         repaint();
     }
 
@@ -314,13 +332,11 @@ public class App extends JFrame {
             g.drawImage(currentBackground, bgX + getWidth(), 0, getWidth(), getHeight(), this);
 
             if (gameStarted) {
-                if (finishTyped) { // เมื่อพิมพ์เสร็จสมบูรณ์
-                    inputBuffer.setLength(0); // ล้าง input buffer
-                    state++; // เปลี่ยน state ไปยังคำถัดไป
-                    spawnNewZombie(); // สร้างซอมบี้ใหม่
-                    repaint(); // วาดหน้าจอใหม่
+                if (finishTyped) { 
+                    spawnNewZombie();
+                    repaint();
                 }
-                
+
                 int zombiex = zombie.getX();
                 int zombiey = zombie.getY();
                 g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
@@ -341,28 +357,96 @@ public class App extends JFrame {
                 int textY = 150;
 
                 switch (state) {
-                    case 0 ->
-                        g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this);
-                    case 1 ->
-                        g.drawImage(text.getImgdinner2(), textX, textY, 300, 50, this);
-                    case 2 ->
-                        g.drawImage(text.getImghouse1(), textX, textY, 300, 50, this);
-                    case 3 ->
-                        g.drawImage(text.getImghouse2(), textX, textY, 300, 50, this);
-                    case 4 ->
-                        g.drawImage(text.getImgmorning1(), textX, textY, 320, 50, this);
-                    case 5 ->
-                        g.drawImage(text.getImgmorning2(), textX, textY, 320, 50, this);
-                    case 6 ->
-                        g.drawImage(text.getImgmusic1(), textX, textY, 300, 50, this);
-                    case 7 ->
-                        g.drawImage(text.getImgmusic2(), textX, textY, 300, 50, this);
-                    case 8 ->
-                        g.drawImage(text.getImgwater1(), textX, textY, 300, 50, this);
-                    case 9 ->
-                        g.drawImage(text.getImgwater2(), textX, textY, 300, 50, this);
-                    default -> {
-                    }
+                    //easy
+                    case 0 :
+                        g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this); break;
+                    case 1 :
+                        g.drawImage(text.getImgdinner2(), textX, textY, 300, 50, this); break;
+                    case 2 :
+                        g.drawImage(text.getImghouse1(), textX, textY, 300, 50, this); break;
+                    case 3 :
+                        g.drawImage(text.getImghouse2(), textX, textY, 300, 50, this); break;
+                    case 4 :
+                        g.drawImage(text.getImgmorning1(), textX, textY, 320, 50, this); break;
+                    case 5 :
+                        g.drawImage(text.getImgmorning2(), textX, textY, 320, 50, this); break;
+                    case 6 :
+                        g.drawImage(text.getImgmusic1(), textX, textY, 300, 50, this); break;
+                    case 7 :
+                        g.drawImage(text.getImgmusic2(), textX, textY, 300, 50, this); break;
+                    case 8 :
+                        g.drawImage(text.getImgwater1(), textX, textY, 300, 50, this); break;
+                    case 9 :
+                        g.drawImage(text.getImgwater2(), textX, textY, 300, 50, this); break;
+
+                    //medium
+                    case 10 :
+                        g.drawImage(text.getImggoal1(), textX, textY, 300, 50, this); break;
+                    case 11 :
+                        g.drawImage(text.getImggoal2(), textX, textY, 300, 50, this); break;
+                    case 12 :
+                        g.drawImage(text.getImghistory1(), textX, textY, 300, 50, this); break;
+                    case 13 :
+                        g.drawImage(text.getImghistory2(), textX, textY, 300, 50, this); break;
+                    case 14 :
+                        g.drawImage(text.getImgindustry1(), textX, textY, 300, 50, this); break;
+                    case 15 :
+                        g.drawImage(text.getImgindustry2(), textX, textY, 300, 50, this); break;
+                    case 16 :
+                        g.drawImage(text.getImgmethod1(), textX, textY, 300, 50, this); break;
+                    case 17 :
+                        g.drawImage(text.getImgmethod2(), textX, textY, 300, 50, this); break;
+                    case 18 :
+                        g.drawImage(text.getImgrelation1(), textX, textY, 300, 50, this); break;
+                    case 19 :
+                        g.drawImage(text.getImgrelation2(), textX, textY, 300, 50, this); break;
+                    case 20 :
+                        g.drawImage(text.getImgtask1(), textX, textY, 300, 50, this); break;
+                    case 21 :
+                        g.drawImage(text.getImgtask2(), textX, textY, 300, 50, this); break;
+                    //hard
+                    case 22 :
+                        g.drawImage(text.getImgan1(), textX, textY, 300, 50, this); break;
+                    case 23 :
+                        g.drawImage(text.getImgan2(), textX, textY, 300, 50, this); break;
+                    case 24 :
+                        g.drawImage(text.getImgbe1(), textX, textY, 300, 50, this); break;
+                    case 25 :
+                        g.drawImage(text.getImgbe2(), textX, textY, 300, 50, this); break;
+                    case 26 : 
+                        g.drawImage(text.getImgce1(), textX, textY, 300, 50, this); break;
+                    case 27 :
+                        g.drawImage(text.getImgce2(), textX, textY, 300, 50, this); break;
+                    case 28 :
+                        g.drawImage(text.getImgde1(), textX, textY, 300, 50, this); break;
+                    case 29 :
+                        g.drawImage(text.getImgde2(), textX, textY, 300, 50, this); break;
+                    case 30 :
+                        g.drawImage(text.getImgdr1(), textX, textY, 300, 50, this); break;
+                    case 31 :
+                        g.drawImage(text.getImgdr2(), textX, textY, 300, 50, this); break;
+                    case 32 :
+                        g.drawImage(text.getImge1(), textX, textY, 300, 50, this); break;
+                    case 33 :
+                        g.drawImage(text.getImge2(), textX, textY, 300, 50, this); break;
+                    case 34 :
+                        g.drawImage(text.getImget1(), textX, textY, 300, 50, this); break;
+                    case 35 :
+                        g.drawImage(text.getImget2(), textX, textY, 300, 50, this); break;
+                    case 36 :
+                        g.drawImage(text.getImgobs1(), textX, textY, 300, 50, this); break;
+                    case 37 :
+                        g.drawImage(text.getImgobs2(), textX, textY, 300, 50, this); break;
+                    case 38 :
+                        g.drawImage(text.getImgse1(), textX, textY, 300, 50, this); break;
+                    case 39 : 
+                        g.drawImage(text.getImgse2(), textX, textY, 300, 50, this); break;
+                    case 40 :
+                        g.drawImage(text.getImgsyn1(), textX, textY, 300, 50, this); break;
+                    case 41 :
+                        g.drawImage(text.getImgsyn2(), textX, textY, 300, 50, this); break;
+
+                    default : break;
                 }
 
                 if (showTryAgain) {
