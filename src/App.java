@@ -86,6 +86,7 @@ public class App extends JFrame {
     private boolean finishTyped = false;
     public static int state = 0;
     public static boolean isHurt = false;
+    private boolean changeScene = false;
 
     final private Image[] backgrounds;
 
@@ -200,18 +201,17 @@ public class App extends JFrame {
                 if (!showTitle) {
                     if (!isTransitioning) {
                         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                            if (archer.hasReachedEdge(getWidth())) {
-                                initiateSceneTransition();
-                            } else {
+                            if (archer.hasReachedEdge(getWidth()) && state == 8) {
+                                initiateSceneTransition(); // เปลี่ยนด่าน
+                            } else if (!archer.hasReachedEdge(getWidth())) {
                                 archer.moveRight();
                             }
                         }
                         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                            if (archer.hasReachedEdge(getWidth())) {
-                                //ให้หยุดที่ขอบของหน้าจอ
-                                archer.stopWalking();
-                            } else {
+                            if (archer.getX() > 20) {
                                 archer.moveLeft();
+                            } else {
+                                archer.stopWalking();
                             }
                         }
                         p.repaint();
