@@ -90,6 +90,8 @@ public class App extends JFrame {
 
     final private Image[] backgrounds;
 
+    private int zombieIconX = 1090;
+
     private Archer archer;
     private Zombie zombie;
     private Zombie boss;
@@ -142,6 +144,21 @@ public class App extends JFrame {
         });
         p.add(exitBtn);
 
+        tryAgainTimer = new Timer(500, e -> {
+            showTryAgain = false;
+            inputBuffer.setLength(0);
+            repaint();
+            tryAgainTimer.stop();
+        });
+
+        changeModeTimer = new Timer(300, e -> {
+            showNextBtn = true;
+            if (zombie != null) {
+                zombie.stopWalking();
+            }
+            repaint();
+        });
+
         //easy
         dinner1Timer = new Timer(300, e -> {
             finishTyped = false;
@@ -178,22 +195,7 @@ public class App extends JFrame {
             water1Timer.stop();
         });
 
-        tryAgainTimer = new Timer(500, e -> {
-            showTryAgain = false;
-            inputBuffer.setLength(0);
-            repaint();
-            tryAgainTimer.stop();
-        });
-
-        changeModeTimer = new Timer(300, e -> {
-            showNextBtn = true;
-            if (zombie != null) {
-                zombie.stopWalking();
-            }
-            //ลบคำออก
-            //state = 10;
-            repaint();
-        });
+        //medium
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -201,7 +203,7 @@ public class App extends JFrame {
                 if (!showTitle) {
                     if (!isTransitioning) {
                         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                            if (archer.hasReachedEdge(getWidth()) && state == 8) {
+                            if (archer.hasReachedEdge(getWidth()) && state == 9) {
                                 initiateSceneTransition(); // เปลี่ยนด่าน
                             } else if (!archer.hasReachedEdge(getWidth())) {
                                 archer.moveRight();
@@ -245,11 +247,12 @@ public class App extends JFrame {
                             //easy
                             case 0:
                                 if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
-                                    archer.shoot(); // ยิงเมื่อพิมพ์ถูก
+                                    archer.shoot();
                                     isHurt = true;
-                                    inputBuffer.setLength(0); // ล้าง inputBuffer
+                                    inputBuffer.setLength(0);
                                     finishTyped = true;
-                                    state = 1; // เปลี่ยน state ไปที่ 1
+                                    state = 1;
+                                    zombieIconX -= 18;
                                     zombie.stopWalking(); // หยุดซอมบี้ตัวปัจจุบัน
                                     spawnNewZombie(); // สร้างซอมบี้ตัวใหม่
                                     house1Timer.start(); // แสดงคำต่อไป
@@ -267,9 +270,10 @@ public class App extends JFrame {
                                     isHurt = true;
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
-                                    state = 3; // เปลี่ยนไปคำถัดไป
+                                    state = 3; 
+                                    zombieIconX -= 18;
                                     zombie.stopWalking();
-                                    spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
+                                    spawnNewZombie(); 
                                     morning1Timer.start();
                                     repaint();
                                 } else if (inputBuffer.length() > 5) {
@@ -286,6 +290,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 5; // เปลี่ยนไปคำถัดไป
+                                    zombieIconX -= 18;
                                     zombie.stopWalking();
                                     spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
                                     music1Timer.start();
@@ -304,6 +309,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 7; // เปลี่ยนไปคำถัดไป
+                                    zombieIconX -= 18;
                                     zombie.stopWalking();
                                     spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
                                     water1Timer.start(); // แสดงคำต่อไป
@@ -322,6 +328,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 9; // เปลี่ยนไปคำถัดไป
+                                    zombieIconX -= 19;
                                     showNextBtn = true;
                                     zombie.stopWalking(); // หยุดการเดินของซอมบี้
                                     changeModeTimer.start(); // เริ่ม timer สำหรับเปลี่ยนโหมด
@@ -402,18 +409,17 @@ public class App extends JFrame {
                 int heartX = 20;
                 int heartY = 20;
                 int barX = 820;
-                int barY = 25;
-                int zombieIconX = 1090;
-                int zombieIconY = 17;
+                int barY = 32;
+                int zombieIconY = 20;
 
                 if (showNextBtn) {
                     g.drawImage(imgNext, 1150, 400, 25, 25, this);
                     g.drawImage(imgHeartFull, heartX, heartY, 200, 50, this);
-                    g.drawImage(imgBar, barX, barY, 320, 30, this);
+                    g.drawImage(imgBar, barX, barY, 310, 20, this);
                     g.drawImage(imgZombieIcon, zombieIconX, zombieIconY, 50, 50, this);
                 } else {
                     g.drawImage(imgHeartFull, heartX, heartY, 200, 50, this);
-                    g.drawImage(imgBar, barX, barY, 320, 30, this);
+                    g.drawImage(imgBar, barX, barY, 310, 20, this);
                     g.drawImage(imgZombieIcon, zombieIconX, zombieIconY, 50, 50, this);
 
                     int zombiex = zombie.getX();
