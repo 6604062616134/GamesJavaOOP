@@ -105,6 +105,7 @@ public class App extends JFrame {
         archer = new Archer();
 
         zombie = new BasicZombie(this); //polymorphism
+        Zombie zombie2 = new MediumZombie(this);
         //boss = new Boss();
 
         text = new Text();
@@ -245,7 +246,6 @@ public class App extends JFrame {
                             case 0:
                                 if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
                                     archer.shoot(); // ยิงเมื่อพิมพ์ถูก
-                                    zombie.takeDamage();
                                     isHurt = true;
                                     inputBuffer.setLength(0); // ล้าง inputBuffer
                                     finishTyped = true;
@@ -264,6 +264,7 @@ public class App extends JFrame {
                             case 2:
                                 if (inputBuffer.toString().equalsIgnoreCase("house")) {
                                     archer.shoot();
+                                    isHurt = true;
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 3; // เปลี่ยนไปคำถัดไป
@@ -281,6 +282,7 @@ public class App extends JFrame {
                             case 4:
                                 if (inputBuffer.toString().equalsIgnoreCase("morning")) {
                                     archer.shoot();
+                                    isHurt = true;
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 5; // เปลี่ยนไปคำถัดไป
@@ -298,6 +300,7 @@ public class App extends JFrame {
                             case 6:
                                 if (inputBuffer.toString().equalsIgnoreCase("music")) {
                                     archer.shoot();
+                                    isHurt = true;
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 7; // เปลี่ยนไปคำถัดไป
@@ -315,6 +318,7 @@ public class App extends JFrame {
                             case 8:
                                 if (inputBuffer.toString().equalsIgnoreCase("water")) {
                                     archer.shoot();
+                                    isHurt = true;
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 9; // เปลี่ยนไปคำถัดไป
@@ -339,10 +343,6 @@ public class App extends JFrame {
         });
 
         setFocusable(true);
-    }
-
-    public int getState() {
-        return state;
     }
 
     private void spawnNewZombie() {
@@ -392,10 +392,10 @@ public class App extends JFrame {
             g.drawImage(currentBackground, bgX + getWidth(), 0, getWidth(), getHeight(), this);
 
             if (gameStarted) {
-                if (finishTyped) {
-                    spawnNewZombie();
-                    repaint();
-                }
+                // if (finishTyped) {
+                //     spawnNewZombie();
+                //     repaint();
+                // }
 
                 int textX = 1200 / 2 - 150;
                 int textY = 150;
@@ -418,7 +418,15 @@ public class App extends JFrame {
 
                     int zombiex = zombie.getX();
                     int zombiey = zombie.getY();
-                    g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
+
+                    if (zombie.getX() >= 0) {
+                        if (isHurt) {
+                            g.drawImage(zombie.getImgZombieHurt(), zombiex, zombiey, 120, 150, this);
+                            isHurt = false;
+                        } else {
+                            g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
+                        }
+                    }
 
                     switch (state) {
                         //easy
@@ -570,8 +578,8 @@ public class App extends JFrame {
                     if (arrow.getX() + 80 > zombie.getX() && arrow.getX() < zombie.getX() + 120
                             && arrow.getY() + 30 > zombie.getY() && arrow.getY() < zombie.getY() + 150) {
 
-                        zombie.takeDamage();
                         archer.getArrows().remove(arrow);
+                        zombie.takeDamage();
                         break;
                     }
                 }

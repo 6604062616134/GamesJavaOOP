@@ -1,10 +1,12 @@
+
 import java.awt.Image;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
-public abstract class  Zombie {
-    protected  int x = 900;
+public abstract class Zombie {
+
+    protected int x = 900;
     protected final int y = 350;
     protected boolean zombieisWalking = false;
     protected Timer zombieTimer;
@@ -59,7 +61,7 @@ public abstract class  Zombie {
             takeDamage();
             app.repaint();
         });
-            
+
     }
 
     public void startWalking() {
@@ -68,14 +70,14 @@ public abstract class  Zombie {
         currentImageZombie = imgZombieWalk;
         //System.out.println("Zombie is walking");
     }
-    
+
     public void stopWalking() {
         zombieisWalking = false;
         zombieTimer.stop();
     }
 
     public boolean isWalking() {
-            return zombieisWalking;
+        return zombieisWalking;
     }
 
     public void moveLeft() {
@@ -84,7 +86,7 @@ public abstract class  Zombie {
     }
 
     public boolean reachArcher(int width) {
-            return x <= 0;
+        return x <= 0;
     }
 
     public void resetPosition() {
@@ -104,30 +106,31 @@ public abstract class  Zombie {
     }
 
     public Image getImgZombieHurt() {
-        return hurt ? imgZombieHurt : imgZombieWalk;
-    }
-
-    public void hurt(){
-        hurt = true;
-        currentImageZombie = getImgZombieHurt();
-        app.repaint();
+        return imgZombieHurt;
     }
 
     public void takeDamage() {
+        if (hurt) {
+            return;
+        }
+    
         hurt = true;
         currentImageZombie = getImgZombieHurt(); // เปลี่ยนเป็นภาพ "hurt"
-        app.repaint(); // อัพเดตหน้าจอ
+        app.repaint(); // อัพเดตหน้าจอทันทีเพื่อแสดงภาพ hurt
     
-        Timer hurtTimer = new Timer(100, e -> { 
-            currentImageZombie = imgZombieWalk; // กลับไปเป็นภาพการเดิน
+        // ตั้งเวลาสำหรับการแสดงภาพ hurt
+        Timer hurtTimer = new Timer(200, e -> { 
+            currentImageZombie = imgZombieWalk; // กลับไปเป็นภาพการเดินหลังจาก 1 วินาที
+            hurt = false; // ตั้งค่า hurt กลับเป็น false
             app.repaint(); 
             ((Timer) e.getSource()).stop();
+            System.out.println("Zombie is hurt"); 
         });
         hurtTimer.setRepeats(false);
         hurtTimer.start();
     
-        // ตั้งเวลาให้ซอมบี้หายไปหลังจากที่แสดงภาพ hurt
-        Timer removeZombieTimer = new Timer(300, ev -> { // ตั้งเวลาเพิ่มเป็น 1000 มิลลิวินาที
+        // ตั้งเวลาให้ซอมบี้หายไปหลังจากแสดงภาพ hurt เสร็จสิ้น (เช่น หลัง 2 วินาที)
+        Timer removeZombieTimer = new Timer(500, ev -> { 
             stopWalking();
             x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
             app.repaint();
@@ -136,7 +139,7 @@ public abstract class  Zombie {
         removeZombieTimer.setRepeats(false);
         removeZombieTimer.start();
     }
+    
 
     public abstract void eat();
-
 }

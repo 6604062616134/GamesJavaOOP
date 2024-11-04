@@ -46,8 +46,6 @@ public class Archer {
 
         currentImage = imgStand;
 
-        
-
         arrows = new ArrayList<>();
 
         // ตั้งค่า Timer สำหรับการเดิน
@@ -128,7 +126,7 @@ public class Archer {
         // สร้างลูกศรใหม่และเพิ่มลงในอาร์เรย์
         arrows.add(new Arrow(300, 435, imgArrow));
     
-        Timer attackTimer = new Timer(200, new ActionListener() {
+        Timer attackTimer = new Timer(200, new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
                 currentImage = imgStand;
@@ -150,6 +148,7 @@ public class Archer {
         private int x = 250;
         private int y = 350;
         private Image img;
+        // private boolean hitZombie = false;
 
         public Arrow(int x, int y, Image img) {
             this.x = x;
@@ -158,7 +157,7 @@ public class Archer {
         }
 
         public void move() {
-            x += 10;
+            x += 500;
         }
 
         public void draw(Graphics g) {
