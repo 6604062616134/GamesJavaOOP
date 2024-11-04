@@ -142,7 +142,8 @@ public class Archer {
     public ArrayList<Archer.Arrow> getArrows() {
         return arrows;
     }
-
+    
+    //inner class
     public class Arrow {
         private int x = 250;
         private int y = 350;
@@ -155,7 +156,7 @@ public class Archer {
         }
 
         public void move() {
-            x += 100;
+            x += 150;
         }
 
         public void draw(Graphics g) {

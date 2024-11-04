@@ -4,11 +4,6 @@ public class BasicZombie extends Zombie{
     }
 
     @Override
-    public void Hurt() {
-        currentImageZombie = imgZombieHurt;
-    }
-
-    @Override
     public void eat() {
         currentImageZombie = imgZombieEat;
     }

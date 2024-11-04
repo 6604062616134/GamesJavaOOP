@@ -28,12 +28,6 @@ public class Text {
     URL music2 = getClass().getResource("/text/easy/music2.png");
     Image imgmusic2 = new ImageIcon(music2).getImage();
 
-    URL river1 = getClass().getResource("/text/easy/river1.png");
-    Image imgriver1 = new ImageIcon(river1).getImage();
-    
-    URL river2 = getClass().getResource("/text/easy/river2.png");
-    Image imgriver2 = new ImageIcon(river2).getImage();
-
     URL water1 = getClass().getResource("/text/easy/water1.png");
     Image imgwater1 = new ImageIcon(water1).getImage();
 
@@ -172,14 +166,6 @@ public class Text {
 
     public Image getImgmusic2() {
         return imgmusic2;
-    }
-
-    public Image getImgriver1() {
-        return imgriver1;
-    }
-
-    public Image getImgriver2() {
-        return imgriver2;
     }
 
     public Image getImgwater1() {

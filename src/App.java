@@ -1,20 +1,19 @@
+
 import java.awt.*;
+import java.awt.event.*;
 import java.net.URL;
 import javax.swing.*;
-import java.awt.event.*;
-import java.util.ArrayList;
 
 public class App extends JFrame {
 
     URL bg1 = getClass().getResource("/background/IMG_0984.png");
     Image imgBG = new ImageIcon(bg1).getImage();
-    
+
     URL bg2 = getClass().getResource("/background/IMG_0985.png");
     Image imgBG2 = new ImageIcon(bg2).getImage();
-    
+
     URL bg3 = getClass().getResource("/background/IMG_0986.png");
     Image imgBG3 = new ImageIcon(bg3).getImage();
-
 
     URL title = getClass().getResource("/text/title.png");
     Image imgTitle = new ImageIcon(title).getImage();
@@ -25,7 +24,7 @@ public class App extends JFrame {
     URL heartfull = getClass().getResource("/heart/heart.png");
     Image imgHeartFull = new ImageIcon(heartfull).getImage();
 
-    URL heart2= getClass().getResource("/heart/heart2.png");
+    URL heart2 = getClass().getResource("/heart/heart2.png");
     Image imgHeart2 = new ImageIcon(heart2).getImage();
 
     URL heart3 = getClass().getResource("/heart/heart3.png");
@@ -39,7 +38,7 @@ public class App extends JFrame {
 
     URL tryAgain = getClass().getResource("/text/tryagain.png");
     Image imgTryAgain = new ImageIcon(tryAgain).getImage();
-    
+
     private int bgX = 0;
     private boolean isTransitioning = false;
     private float fadeAlpha = 0;
@@ -47,35 +46,60 @@ public class App extends JFrame {
     private int currentBgIndex = 0;
     private boolean showTitle = true;
     private boolean gameStarted = false;
-    private StringBuilder inputBuffer = new StringBuilder();
-    private boolean finishTyped = false;
-    private int state = 0;
+
+    //easy
+    private Timer dinner1Timer;
     private Timer house1Timer;
+    private Timer morning1Timer;
+    private Timer music1Timer;
+    private Timer water1Timer;
+
+    //medium
+    private Timer goal1Timer;
+    private Timer history1Timer;
+    private Timer industry1Timer;
+    private Timer method1Timer;
+    private Timer relation1Timer;
+    private Timer task1Timer;
+
+    //hard
+    private Timer an1Timer;
+    private Timer be1Timer;
+    private Timer ce1Timer;
+    private Timer de1Timer;
+    private Timer dr1Timer;
+    private Timer e1Timer;
+    private Timer et1Timer;
+    private Timer obs1Timer;
+    private Timer se1Timer;
+    private Timer syn1Timer;
+
+    private StringBuilder inputBuffer = new StringBuilder();
     private boolean showTryAgain = false;
     private Timer tryAgainTimer;
+    private int previousState = 0;
+    private boolean finishTyped = false;
+    private int state = 0;
+    private Timer zombieSpawnTimer;
 
     final private Image[] backgrounds;
 
     private Archer archer;
+    private Zombie zombie;
+    private Zombie boss;
+    private Text text;
 
     private JButton startBtn, exitBtn;
 
-    private Zombie zombie;
-
-    private Zombie boss;
-    
-    private Text text;
-
-    App(){
+    App() {
         backgrounds = new Image[]{imgBG, imgBG2, imgBG3};
         currentBackground = backgrounds[currentBgIndex];
 
         DrawArea p = new DrawArea();
         p.setLayout(null);
         archer = new Archer();
-        
-        
-        zombie = new BasicZombie(this);
+
+        zombie = new BasicZombie(this); //polymorphism
         //boss = new Boss();
 
         text = new Text();
@@ -84,7 +108,7 @@ public class App extends JFrame {
 
         startBtn = new JButton(new ImageIcon(startBtnImage));
         startBtn.setBounds(1200 / 2 - 100, 400, 250, 50);
-        startBtn.setBorderPainted(false); 
+        startBtn.setBorderPainted(false);
         startBtn.setContentAreaFilled(false);
         startBtn.addActionListener(new ActionListener() {
             @Override
@@ -93,8 +117,8 @@ public class App extends JFrame {
                 exitBtn.setVisible(false);
                 gameStarted = true;
                 showTitle = false;
-                zombie.startWalking();
                 p.repaint();
+                zombie.startWalking();
             }
         });
         p.add(startBtn);
@@ -111,6 +135,14 @@ public class App extends JFrame {
         });
         p.add(exitBtn);
 
+        //easy
+        dinner1Timer = new Timer(200, e -> {
+            finishTyped = false;
+            state = 1;
+            p.repaint();
+            dinner1Timer.stop();
+        });
+
         house1Timer = new Timer(200, e -> {
             finishTyped = false; // รีเซ็ต finishTyped เพื่ออนุญาตให้พิมพ์ได้
             state = 2; // เปลี่ยนไปแสดง house1
@@ -118,27 +150,47 @@ public class App extends JFrame {
             house1Timer.stop(); // หยุด timer หลังจากแสดง house1
         });
 
-        tryAgainTimer = new Timer(500, e -> { // Show for 2 seconds
-            showTryAgain = false; // Hide "Try Again" message
-            inputBuffer.setLength(0); // Clear input buffer
-            state = 0; // Reset state back to 0
-            repaint(); // Refresh to show the updated state
-            tryAgainTimer.stop(); // Stop the timer
+        morning1Timer = new Timer(200, e -> {
+            finishTyped = false;
+            state = 4;
+            p.repaint();
+            morning1Timer.stop();
+        });
+
+        music1Timer = new Timer(200, e -> {
+            finishTyped = false;
+            state = 6;
+            p.repaint();
+            music1Timer.stop();
+        });
+
+        water1Timer = new Timer(200, e -> {
+            finishTyped = false;
+            state = 8;
+            p.repaint();
+            water1Timer.stop();
+        });
+
+        tryAgainTimer = new Timer(500, e -> {
+            showTryAgain = false;
+            inputBuffer.setLength(0);
+            repaint();
+            tryAgainTimer.stop();
         });
 
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(!showTitle){
+                if (!showTitle) {
                     if (!isTransitioning) {
                         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
                             if (archer.hasReachedEdge(getWidth())) {
                                 initiateSceneTransition();
                             } else {
-                                archer.moveRight(); 
+                                archer.moveRight();
                             }
                         }
-                        if(e.getKeyCode() == KeyEvent.VK_LEFT){
+                        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
                             if (archer.hasReachedEdge(getWidth())) {
                                 //ให้หยุดที่ขอบของหน้าจอ
                                 archer.stopWalking();
@@ -153,7 +205,7 @@ public class App extends JFrame {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if(!showTitle){
+                if (!showTitle) {
                     if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
                         archer.stopWalking();
                         p.repaint();
@@ -170,49 +222,44 @@ public class App extends JFrame {
             public void keyTyped(KeyEvent e) {
                 if (!showTitle) {
                     char keyChar = e.getKeyChar();
-                    inputBuffer.append(keyChar); // Add the typed character to the buffer
-            
-                    // Check the input based on the current state
-                    if (state == 0) {
-                        if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
-                            archer.shoot();
-                            inputBuffer.setLength(0); // Clear input buffer
-                            state = 1; // Move to show dinner2
-                            finishTyped = true; // Mark finishTyped as true
-                            repaint(); // Refresh the screen to show dinner2
-                            house1Timer.start(); // Start timer for house1
-                        } else if (inputBuffer.length() >= 6) { // If input is longer than "dinner"
-                            inputBuffer.setLength(0); // Clear input buffer
-                            state = -1; // Set state to -1 for incorrect input
-                            showTryAgain = true; // Show "Try Again" message
-                            repaint(); // Refresh the screen to show "Try Again"
-                            tryAgainTimer.start(); // Start the timer to hide "Try Again" after 2 seconds
-                        }
-                    } else if (state == 1) {
-                        if (finishTyped) {
-                            finishTyped = false; // Reset finishTyped
-                            state = 2; // Move to show house1
-                            repaint(); // Refresh to show house1
-                        }
-                    } else if (state == 2) {
-                        if (inputBuffer.toString().equalsIgnoreCase("house")) {
-                            archer.shoot();
-                            inputBuffer.setLength(0); // Clear input buffer
-                            finishTyped = true; // Mark finishTyped as true
-                            state = 3; // Move to show house2
-                            repaint(); // Refresh to show house2
-                        } else if (inputBuffer.length() >= 5) { // If input is longer than 5 characters
-                            inputBuffer.setLength(0); // Clear input buffer
-                            state = -1; // Set state to -1 for incorrect input
-                            showTryAgain = true; // Show "Try Again" message
-                            repaint(); // Refresh the screen to show "Try Again"
-                            tryAgainTimer.start(); // Start the timer to hide "Try Again" after 2 seconds
-                        }
-                    } else if (state == 3) {
-                        if (finishTyped) {
-                            finishTyped = false; // Reset finishTyped
-                            state = 4; // End the show
-                            repaint(); // Refresh to show the end
+                    inputBuffer.append(keyChar); // เก็บตัวอักษรที่พิมพ์ลงใน inputBuffer
+
+                    if (gameStarted) {
+                        switch (state) {
+                            case 0:
+                                if (inputBuffer.toString().equalsIgnoreCase("dinner")) {
+                                    archer.shoot(); // ยิงเมื่อพิมพ์ถูก
+                                    inputBuffer.setLength(0); // ล้าง inputBuffer
+                                    finishTyped = true;
+                                    state = 1; // เปลี่ยน state ไปที่ 1
+                                    zombie.stopWalking(); // หยุดซอมบี้ตัวปัจจุบัน
+                                    spawnNewZombie(); // สร้างซอมบี้ตัวใหม่
+                                    house1Timer.start(); // แสดงคำต่อไป
+                                    repaint();
+                                } else if (inputBuffer.length() > 6) {
+                                    showTryAgain = true;
+                                    tryAgainTimer.start();
+                                    inputBuffer.setLength(0);
+                                    repaint();
+                                }
+                                break;
+                            case 2:
+                                if (inputBuffer.toString().equalsIgnoreCase("house")) {
+                                    archer.shoot();
+                                    inputBuffer.setLength(0);
+                                    finishTyped = true;
+                                    state = 3; // เปลี่ยนไปคำถัดไป
+                                    zombie.stopWalking();
+                                    spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
+                                    morning1Timer.start();
+                                    repaint();
+                                } else if (inputBuffer.length() > 5) {
+                                    showTryAgain = true;
+                                    tryAgainTimer.start();
+                                    inputBuffer.setLength(0);
+                                    repaint();
+                                }
+                                break;
                         }
                     }
                 }
@@ -221,6 +268,12 @@ public class App extends JFrame {
         });
 
         setFocusable(true);
+    }
+
+    private void spawnNewZombie() {
+        zombie = new BasicZombie(this); // ใช้ polymorphism เพื่อสร้างซอมบี้ใหม่
+        zombie.startWalking(); // ซอมบี้ตัวใหม่เริ่มเดินทันทีที่สร้าง
+        repaint();
     }
 
     private void initiateSceneTransition() {
@@ -241,7 +294,7 @@ public class App extends JFrame {
                     bgX = 0; // Reset background position
                 }
                 if (fadeAlpha >= 1) {
-                    ((Timer)e.getSource()).stop(); // Stop timer after fade-out completes
+                    ((Timer) e.getSource()).stop(); // Stop timer after fade-out completes
                     isTransitioning = false; // End transition
                     fadeAlpha = 0; // Reset fadeAlpha for next transition
                 }
@@ -251,19 +304,23 @@ public class App extends JFrame {
         transitionTimer.start();
     }
 
-
     class DrawArea extends JPanel {
+
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            
+
             g.drawImage(currentBackground, bgX, 0, getWidth(), getHeight(), this);
             g.drawImage(currentBackground, bgX + getWidth(), 0, getWidth(), getHeight(), this);
 
-            // Draw the archer character
-            // g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
-
-            if(gameStarted){
+            if (gameStarted) {
+                if (finishTyped) { // เมื่อพิมพ์เสร็จสมบูรณ์
+                    inputBuffer.setLength(0); // ล้าง input buffer
+                    state++; // เปลี่ยน state ไปยังคำถัดไป
+                    spawnNewZombie(); // สร้างซอมบี้ใหม่
+                    repaint(); // วาดหน้าจอใหม่
+                }
+                
                 int zombiex = zombie.getX();
                 int zombiey = zombie.getY();
                 g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
@@ -271,8 +328,6 @@ public class App extends JFrame {
                 int heartX = 20;
                 int heartY = 20;
                 g.drawImage(imgHeartFull, heartX, heartY, 200, 50, this);
-                // g.drawImage(imgHeart2, heartX + 50, heartY, 50, 50, this);
-                // g.drawImage(imgHeart3, heartX + 100, heartY, 50, 50, this);
 
                 int barX = 820;
                 int barY = 25;
@@ -285,14 +340,29 @@ public class App extends JFrame {
                 int textX = 1200 / 2 - 150;
                 int textY = 150;
 
-                if (state == 0) {
-                    g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this);
-                } else if (state == 1) {
-                    g.drawImage(text.getImgdinner2(), textX, textY, 300, 50, this);
-                } else if (state == 2) {
-                    g.drawImage(text.getImghouse1(), textX, textY, 300, 50, this);
-                } else if (state == 3) {
-                    g.drawImage(text.getImghouse2(), textX, textY, 300, 50, this);
+                switch (state) {
+                    case 0 ->
+                        g.drawImage(text.getImgdinner1(), textX, textY, 300, 50, this);
+                    case 1 ->
+                        g.drawImage(text.getImgdinner2(), textX, textY, 300, 50, this);
+                    case 2 ->
+                        g.drawImage(text.getImghouse1(), textX, textY, 300, 50, this);
+                    case 3 ->
+                        g.drawImage(text.getImghouse2(), textX, textY, 300, 50, this);
+                    case 4 ->
+                        g.drawImage(text.getImgmorning1(), textX, textY, 320, 50, this);
+                    case 5 ->
+                        g.drawImage(text.getImgmorning2(), textX, textY, 320, 50, this);
+                    case 6 ->
+                        g.drawImage(text.getImgmusic1(), textX, textY, 300, 50, this);
+                    case 7 ->
+                        g.drawImage(text.getImgmusic2(), textX, textY, 300, 50, this);
+                    case 8 ->
+                        g.drawImage(text.getImgwater1(), textX, textY, 300, 50, this);
+                    case 9 ->
+                        g.drawImage(text.getImgwater2(), textX, textY, 300, 50, this);
+                    default -> {
+                    }
                 }
 
                 if (showTryAgain) {
@@ -304,23 +374,22 @@ public class App extends JFrame {
                 for (Archer.Arrow arrow : archer.getArrows()) {
                     arrow.move();
                     g.drawImage(arrow.getImg(), arrow.getX(), arrow.getY(), 80, 30, null);
-                
-                    if (arrow.getX() + 80 > zombie.getX() && arrow.getX() < zombie.getX() + 120 && 
-                        arrow.getY() + 30 > zombie.getY() && arrow.getY() < zombie.getY() + 150) {
-                        
+
+                    if (arrow.getX() + 80 > zombie.getX() && arrow.getX() < zombie.getX() + 120
+                            && arrow.getY() + 30 > zombie.getY() && arrow.getY() < zombie.getY() + 150) {
+
                         zombie.takeDamage();
                         archer.getArrows().remove(arrow);
-                        break; 
+                        break;
                     }
                 }
 
-                
             }
 
             if (showTitle) {
-                int newWidth = 500; 
+                int newWidth = 500;
                 int newHeight = 130;
-                int x = 1200/2 - newWidth/2;
+                int x = 1200 / 2 - newWidth / 2;
                 int y = 150;
                 g.drawImage(imgTitle, x, y, newWidth, newHeight, this);
             }
@@ -333,15 +402,16 @@ public class App extends JFrame {
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         }
+
     }
 
     public static void main(String[] args) throws Exception {
         JFrame frame = new App();
-        
+
         frame.setTitle("Word archer : Zombie hunt");
         frame.setSize(1200, 750);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(null); //
         frame.setVisible(true);
     }
 }

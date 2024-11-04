@@ -4,11 +4,6 @@ public class Boss extends Zombie{
     }
 
     @Override
-    public void Hurt() {
-        currentImageZombie = imgBossHurt;
-    }
-
-    @Override
     public void eat() {
         System.out.println("Boss is eating");
     }

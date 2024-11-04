@@ -12,6 +12,9 @@ public abstract class  Zombie {
     protected Image currentImageZombie;
     private final App app;
 
+    private boolean isDead = false;
+    private int health = 3;
+
     URL zombie1 = getClass().getResource("/zombie/IMG_1053.png");
     Image imgZombie = new ImageIcon(zombie1).getImage();
 
@@ -46,6 +49,7 @@ public abstract class  Zombie {
         this.app = app;
         zombieTimer = new Timer(150, e -> {
             zombieisWalking = true;
+            startWalking();
             currentImageZombie = imgZombieWalk;
             moveLeft();
             app.repaint();
@@ -117,8 +121,10 @@ public abstract class  Zombie {
         delayTimer.start();
     }
     
+    public boolean isDead() {
+        return isDead;
+    }
 
     public abstract void eat();
 
-    public abstract void Hurt();
 }
