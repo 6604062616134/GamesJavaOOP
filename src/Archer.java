@@ -16,7 +16,7 @@ public class Archer {
     private Image imgWalkleft2;
     private boolean isWalkingLeft = false;
     private final Image imgAttacking;
-    private boolean isAttacking = false;
+    public boolean isAttacking = false;
     private final ArrayList<Arrow> arrows; // รายการลูกศรที่ยิงออกไป
     private final Image imgArrow;
 
@@ -45,6 +45,8 @@ public class Archer {
         imgAttacking = new ImageIcon(attack).getImage();
 
         currentImage = imgStand;
+
+        
 
         arrows = new ArrayList<>();
 
@@ -156,7 +158,7 @@ public class Archer {
         }
 
         public void move() {
-            x += 150;
+            x += 10;
         }
 
         public void draw(Graphics g) {

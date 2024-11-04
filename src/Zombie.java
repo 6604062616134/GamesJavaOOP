@@ -10,10 +10,9 @@ public abstract class  Zombie {
     protected Timer zombieTimer;
     protected boolean isImageZombie = true;
     protected Image currentImageZombie;
-    private final App app;
-
-    private boolean isDead = false;
-    private int health = 3;
+    private App app;
+    public Timer ZombieHurtTimer;
+    private boolean hurt = false;
 
     URL zombie1 = getClass().getResource("/zombie/IMG_1053.png");
     Image imgZombie = new ImageIcon(zombie1).getImage();
@@ -47,20 +46,27 @@ public abstract class  Zombie {
 
     public Zombie(App app) {
         this.app = app;
-        zombieTimer = new Timer(150, e -> {
+        zombieTimer = new Timer(200, e -> {
             zombieisWalking = true;
             startWalking();
             currentImageZombie = imgZombieWalk;
             moveLeft();
             app.repaint();
         });
+
+        ZombieHurtTimer = new Timer(100, e -> {
+            currentImageZombie = imgZombieHurt;
+            takeDamage();
+            app.repaint();
+        });
+            
     }
 
     public void startWalking() {
         zombieTimer.start();
         zombieisWalking = true;
         currentImageZombie = imgZombieWalk;
-        System.out.println("Zombie is walking");
+        //System.out.println("Zombie is walking");
     }
     
     public void stopWalking() {
@@ -92,37 +98,43 @@ public abstract class  Zombie {
     public int getY() {
         return y;
     }
+
     public Image getCurrentImage() {
         return isImageZombie ? imgZombie : imgZombieWalk;
     }
 
     public Image getImgZombieHurt() {
-        return imgZombieHurt;
+        return hurt ? imgZombieHurt : imgZombieWalk;
+    }
+
+    public void hurt(){
+        hurt = true;
+        currentImageZombie = getImgZombieHurt();
+        app.repaint();
     }
 
     public void takeDamage() {
-        currentImageZombie = imgZombieHurt;
-        app.repaint(); // Update the screen to show the hurt image
+        hurt = true;
+        currentImageZombie = getImgZombieHurt(); // เปลี่ยนเป็นภาพ "hurt"
+        app.repaint(); // อัพเดตหน้าจอ
     
-        // Wait 150ms to show the hurt image before removing the zombie
-        Timer delayTimer = new Timer(100, e -> {
-            Timer removeZombieTimer = new Timer(100, ev -> {
-                stopWalking();
-                x = -1000;
-                app.repaint();
-                ((Timer) ev.getSource()).stop();
-            });
-            removeZombieTimer.setRepeats(false);
-            removeZombieTimer.start();
-            
+        Timer hurtTimer = new Timer(100, e -> { 
+            currentImageZombie = imgZombieWalk; // กลับไปเป็นภาพการเดิน
+            app.repaint(); 
             ((Timer) e.getSource()).stop();
         });
-        delayTimer.setRepeats(false);
-        delayTimer.start();
-    }
+        hurtTimer.setRepeats(false);
+        hurtTimer.start();
     
-    public boolean isDead() {
-        return isDead;
+        // ตั้งเวลาให้ซอมบี้หายไปหลังจากที่แสดงภาพ hurt
+        Timer removeZombieTimer = new Timer(300, ev -> { // ตั้งเวลาเพิ่มเป็น 1000 มิลลิวินาที
+            stopWalking();
+            x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
+            app.repaint();
+            ((Timer) ev.getSource()).stop();
+        });
+        removeZombieTimer.setRepeats(false);
+        removeZombieTimer.start();
     }
 
     public abstract void eat();
