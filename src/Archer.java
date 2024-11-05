@@ -6,23 +6,28 @@ import java.util.ArrayList;
 
 public class Archer {
     private int x;
-    final private int y;
+    private int y;
     private Image imgStand;
     private Image imgWalk;
-    private Image currentImage;
-    final private Timer walkTimer;
+    public Image currentImage;
+    private Timer walkTimer;
     private boolean isWalking = false;
     private Image imgWalkleft;
     private Image imgWalkleft2;
     private boolean isWalkingLeft = false;
-    private final Image imgAttacking;
+    private Image imgAttacking;
+    public Image imgHurt;
     public boolean isAttacking = false;
-    private final ArrayList<Arrow> arrows; // รายการลูกศรที่ยิงออกไป
-    private final Image imgArrow;
+    private ArrayList<Arrow> arrows; // รายการลูกศรที่ยิงออกไป
+    private Image imgArrow;
+    private Timer hurtTimer;
+    private App app;
+    public boolean isHurt = false;
 
-    public Archer() {
+    public Archer(App app) {
         this.x = 250;
         this.y = 350;
+        this.app = app;
 
         // โหลดภาพต่างๆ
         URL char1 = getClass().getResource("/character/IMG_1002.png");
@@ -36,6 +41,9 @@ public class Archer {
 
         URL charWalkleft2 = getClass().getResource("/character/leftwalk.png");
         imgWalkleft2 = new ImageIcon(charWalkleft2).getImage();
+
+        URL charHurt = getClass().getResource("/character/hurt.png");
+        Image imgHurt = new ImageIcon(charHurt).getImage();
 
         // โหลดภาพลูกศร
         URL arrow = getClass().getResource("/character/arrow.png");
@@ -60,6 +68,24 @@ public class Archer {
                 }
             }
         });
+
+        hurtTimer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentImage = imgStand; // กลับเป็นภาพปกติ
+                isHurt = false;
+                app.repaint();
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        hurtTimer.setRepeats(false);
+    }
+
+    public void getArcherHurtImg() {
+        isHurt = true;
+        currentImage = imgHurt;
+        hurtTimer.start(); // เริ่ม hurtTimer ก่อน
+        app.repaint(); // เรียก repaint หลังเริ่ม timer
     }
 
     public void startWalking() {
@@ -95,7 +121,7 @@ public class Archer {
     }
 
     public boolean hasReachedEdge(int windowWidth) {
-        return x + 200 >= windowWidth;
+        return x + 10 >= windowWidth;
     }
 
     public void resetPosition() {

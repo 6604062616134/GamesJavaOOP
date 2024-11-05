@@ -8,10 +8,4 @@ public class MediumZombie extends Zombie{
         x -= 5;
         isImageZombie = !isImageZombie;
     }
-
-    @Override
-    public void eat() {
-        currentImageZombie = imgZombieEat;
-    }
-    
 }

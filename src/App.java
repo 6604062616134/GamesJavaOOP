@@ -30,6 +30,9 @@ public class App extends JFrame {
     URL heart3 = getClass().getResource("/heart/heart3.png");
     Image imgHeart3 = new ImageIcon(heart3).getImage();
 
+    URL HeartEmpty = getClass().getResource("/heart/heartempty.png");
+    Image imgHeartEmpty = new ImageIcon(HeartEmpty).getImage();
+
     URL bar = getClass().getResource("/progressbar/bar.png");
     Image imgBar = new ImageIcon(bar).getImage();
 
@@ -87,6 +90,7 @@ public class App extends JFrame {
     public static int state = 0;
     public static boolean isHurt = false;
     private Timer changeSceneTimer;
+    private int zombieBiteCount = 0;
 
     final private Image[] backgrounds;
 
@@ -104,7 +108,7 @@ public class App extends JFrame {
 
         DrawArea p = new DrawArea();
         p.setLayout(null);
-        archer = new Archer();
+        archer = new Archer(this);
 
         zombie = new BasicZombie(this); //polymorphism
 
@@ -189,6 +193,11 @@ public class App extends JFrame {
                 goal1Timer.start(); // แสดงคำต่อไป
                 changeSceneTimer.stop(); // หยุด timer เมื่อเสร็จสิ้นการเปลี่ยน
             }
+            if (state == 21) {
+                initiateSceneTransition();
+                an1Timer.start();
+                changeSceneTimer.stop();
+            }
         });
 
         //medium
@@ -237,12 +246,24 @@ public class App extends JFrame {
         });
 
         //hard
+        an1Timer = new Timer(1200, e -> {
+            System.out.println("an1Timer triggered, setting state to 22");
+            finishTyped = false;
+            state = 22;
+            spawnBoss();
+            p.repaint();
+            an1Timer.stop();
+        });
+
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (!showTitle) {
                     if (!isTransitioning) {
                         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                            if (archer.hasReachedEdge(1000)) {
+                                archer.moveLeft();
+                            }
                             archer.moveRight();
                         }
                         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -253,6 +274,10 @@ public class App extends JFrame {
                             }
                         }
                         p.repaint();
+
+                        if (zombie.checkCollisionWithArcher(archer)) {
+                            zombie.eatArcher();
+                        }
                     }
                 }
             }
@@ -365,7 +390,7 @@ public class App extends JFrame {
                                     finishTyped = true;
                                     state = 9;
                                     zombieIconX -= 19;
-                                    zombie.stopWalking();
+                                    repaint();
                                 } else if (inputBuffer.length() > 5) {
                                     showTryAgain = true;
                                     tryAgainTimer.start();
@@ -481,9 +506,8 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 21;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 20;
                                     zombie.stopWalking();
-                                    // task1Timer.start(); change scene
                                     repaint();
                                 } else if (inputBuffer.length() > 4) {
                                     showTryAgain = true;
@@ -491,8 +515,30 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     repaint();
                                 }
+                                changeSceneTimer.start();
                                 break;
                             default:
+                                break;
+                        }
+                        switch (state) {
+                            case 22:
+                                if (inputBuffer.toString().equalsIgnoreCase("analyze")) {
+                                    archer.shoot();
+                                    isHurt = true;
+                                    inputBuffer.setLength(0);
+                                    finishTyped = true;
+                                    state = 23;
+                                    zombieIconX -= 18;
+                                    zombie.stopWalking();
+                                    //spawnBoss();
+                                    be1Timer.start();
+                                    repaint();
+                                } else if (inputBuffer.length() > 7) {
+                                    showTryAgain = true;
+                                    tryAgainTimer.start();
+                                    inputBuffer.setLength(0);
+                                    repaint();
+                                }
                                 break;
                         }
                     }
@@ -504,7 +550,7 @@ public class App extends JFrame {
         setFocusable(true);
     }
 
-    private void spawnNewZombie() {
+    public void spawnNewZombie() {
         if (zombie != null) {
             zombie.stopWalking(); // หยุดการเดินของซอมบี้เก่า
         }
@@ -520,6 +566,25 @@ public class App extends JFrame {
         zombie = new MediumZombie(this);
         zombie.startWalking();
         repaint();
+    }
+
+    private void spawnBoss() {
+        // if (zombie != null) {
+        //     zombie.stopWalking();
+        // }
+        zombie = new Boss(this);
+        // zombie.startWalking();
+        repaint();
+    }
+
+    public void incrementZombieBiteCount() {
+        if (zombieBiteCount < 3) {
+            zombieBiteCount++;
+        }
+    }
+
+    public Archer getArcher() {
+        return archer;
     }
 
     private void initiateSceneTransition() {
@@ -569,12 +634,37 @@ public class App extends JFrame {
                 int barY = 32;
                 int zombieIconY = 20;
 
-                g.drawImage(imgHeartFull, heartX, heartY, 200, 50, this);
+                switch (zombieBiteCount) {
+                    case 0:
+                        g.drawImage(imgHeartFull, heartX, heartY, 200, 50, this);
+                        break;
+                    case 1:
+                        g.drawImage(imgHeart2, heartX, heartY, 200, 50, this);
+                        break;
+                    case 2:
+                        g.drawImage(imgHeart3, heartX, heartY, 200, 50, this);
+                        break;
+                    case 3:
+                        g.drawImage(imgHeartEmpty, heartX, heartY, 200, 50, this);
+                        break;
+                }
+
                 g.drawImage(imgBar, barX, barY, 310, 20, this);
                 g.drawImage(imgZombieIcon, zombieIconX, zombieIconY, 50, 50, this);
 
+                if (archer.isHurt) {
+                    g.drawImage(archer.imgHurt, archer.getX(), archer.getY(), 150, 150, this);
+                } else {
+                    g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
+                }
+
                 int zombiex = zombie.getX();
                 int zombiey = zombie.getY();
+
+                //boss
+                if (zombie instanceof Boss) {
+                    g.drawImage(((Boss) zombie).getImgBoss(), zombiex, zombiey, 500, 700, this);
+                }
 
                 if (zombie.getX() >= 0) {
                     if (isHurt) {
@@ -583,6 +673,11 @@ public class App extends JFrame {
                     } else {
                         g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
                     }
+                }
+
+                if (zombie.checkCollisionWithArcher(archer)) {
+                    g.drawImage(zombie.getImgZombieEat(), zombiex, zombiey, 120, 150, this);
+                    zombie.eatArcher();
                 }
 
                 switch (state) {
@@ -600,10 +695,10 @@ public class App extends JFrame {
                         g.drawImage(text.getImghouse2(), textX, textY, 300, 50, this);
                         break;
                     case 4:
-                        g.drawImage(text.getImgmorning1(), textX - 10, textY, 350, 50, this);
+                        g.drawImage(text.getImgmorning1(), textX - 20, textY, 350, 50, this);
                         break;
                     case 5:
-                        g.drawImage(text.getImgmorning2(), textX - 10, textY, 350, 50, this);
+                        g.drawImage(text.getImgmorning2(), textX - 20, textY, 350, 50, this);
                         break;
                     case 6:
                         g.drawImage(text.getImgmusic1(), textX + 20, textY, 270, 50, this);
@@ -618,47 +713,51 @@ public class App extends JFrame {
                         if (zombie != null) {
                             zombie.stopWalking();
                             zombiex = -1000;
-                            repaint();
+                            //repaint();
                         }
                         //g.drawImage(text.getImgwater2(), textX + 20, textY, 270, 50, this);
                         break;
 
                     //medium
                     case 10:
-                        g.drawImage(text.getImggoal1(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImggoal1(), textX + 50, textY, 220, 50, this);
                         break;
                     case 11:
-                        g.drawImage(text.getImggoal2(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImggoal2(), textX + 50, textY, 220, 50, this);
                         break;
                     case 12:
-                        g.drawImage(text.getImghistory1(), textX, textY, 320, 50, this);
+                        g.drawImage(text.getImghistory1(), textX, textY, 330, 50, this);
                         break;
                     case 13:
-                        g.drawImage(text.getImghistory2(), textX, textY, 320, 50, this);
+                        g.drawImage(text.getImghistory2(), textX, textY, 330, 50, this);
                         break;
                     case 14:
-                        g.drawImage(text.getImgindustry1(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImgindustry1(), textX-10, textY, 360, 50, this);
                         break;
                     case 15:
-                        g.drawImage(text.getImgindustry2(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImgindustry2(), textX-10, textY, 360, 50, this);
                         break;
                     case 16:
-                        g.drawImage(text.getImgmethod1(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImgmethod1(), textX + 10, textY, 300, 50, this);
                         break;
                     case 17:
-                        g.drawImage(text.getImgmethod2(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImgmethod2(), textX + 10, textY, 300, 50, this);
                         break;
                     case 18:
-                        g.drawImage(text.getImgrelation1(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImgrelation1(), textX, textY, 340, 50, this);
                         break;
                     case 19:
-                        g.drawImage(text.getImgrelation2(), textX, textY, 300, 50, this);
+                        g.drawImage(text.getImgrelation2(), textX, textY, 340, 50, this);
                         break;
                     case 20:
-                        g.drawImage(text.getImgtask1(), textX, textY, 250, 50, this);
+                        g.drawImage(text.getImgtask1(), textX + 40, textY, 200, 50, this);
                         break;
                     case 21:
-                        g.drawImage(text.getImgtask2(), textX, textY, 250, 50, this);
+                        if (zombie != null) {
+                            zombie.stopWalking();
+                            zombiex = -1000;
+                            //repaint();
+                        }
                         break;
                     //hard
                     case 22:
@@ -730,8 +829,7 @@ public class App extends JFrame {
                     g.drawImage(imgTryAgain, 475, 600, 200, 30, this);
                 }
 
-                g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
-
+                //g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
                 for (Archer.Arrow arrow : archer.getArrows()) {
                     arrow.move();
                     g.drawImage(arrow.getImg(), arrow.getX(), arrow.getY(), 80, 30, null);

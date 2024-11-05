@@ -15,6 +15,7 @@ public abstract class Zombie {
     private App app;
     public Timer ZombieHurtTimer;
     private boolean hurt = false;
+    private boolean isEating = false;
 
     URL zombie1 = getClass().getResource("/zombie/IMG_1053.png");
     Image imgZombie = new ImageIcon(zombie1).getImage();
@@ -109,28 +110,32 @@ public abstract class Zombie {
         return imgZombieHurt;
     }
 
+    public Image getImgZombieEat() {
+        return imgZombieEat;
+    }
+
     public void takeDamage() {
         if (hurt) {
             return;
         }
-    
+
         hurt = true;
         currentImageZombie = getImgZombieHurt(); // เปลี่ยนเป็นภาพ "hurt"
         app.repaint(); // อัพเดตหน้าจอทันทีเพื่อแสดงภาพ hurt
-    
+
         // ตั้งเวลาสำหรับการแสดงภาพ hurt
-        Timer hurtTimer = new Timer(200, e -> { 
+        Timer hurtTimer = new Timer(200, e -> {
             currentImageZombie = imgZombieWalk; // กลับไปเป็นภาพการเดินหลังจาก 1 วินาที
             hurt = false; // ตั้งค่า hurt กลับเป็น false
-            app.repaint(); 
+            app.repaint();
             ((Timer) e.getSource()).stop();
-            System.out.println("Zombie is hurt"); 
+            System.out.println("Zombie is hurt");
         });
         hurtTimer.setRepeats(false);
         hurtTimer.start();
-    
+
         // ตั้งเวลาให้ซอมบี้หายไปหลังจากแสดงภาพ hurt เสร็จสิ้น (เช่น หลัง 2 วินาที)
-        Timer removeZombieTimer = new Timer(500, ev -> { 
+        Timer removeZombieTimer = new Timer(500, ev -> {
             stopWalking();
             x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
             app.repaint();
@@ -139,7 +144,42 @@ public abstract class Zombie {
         removeZombieTimer.setRepeats(false);
         removeZombieTimer.start();
     }
-    
 
-    public abstract void eat();
+    public boolean checkCollisionWithArcher(Archer archer) {
+        int collisionBuffer = 120; // ระยะห่างที่ต้องการให้ซอมบี้เข้ามาใกล้ archer มากขึ้น
+
+        Image archerImage = archer.getCurrentImage();
+        if (archerImage == null) {
+            return false; // ถ้า archerImage เป็น null ให้ return false
+        }
+
+        return this.x < (archer.getX() - collisionBuffer) + archerImage.getWidth(null)
+                && this.x + this.currentImageZombie.getWidth(null) > (archer.getX() - collisionBuffer)
+                && this.y < archer.getY() + archerImage.getHeight(null)
+                && this.y + this.currentImageZombie.getHeight(null) > archer.getY();
+    }
+
+    public void eatArcher() {
+    if (isEating) {
+        return; // ถ้ากำลังกินอยู่ ให้ return ออกไป
+    }
+    isEating = true; // ตั้งสถานะว่าซอมบี้กำลังกิน
+
+    System.out.println("Zombie is eating");
+    currentImageZombie = imgZombieEat; // เปลี่ยนภาพเป็นการกิน
+    app.getArcher().getArcherHurtImg(); // เรียกใช้ฟังก์ชันให้ archer แสดงภาพเจ็บ
+    app.incrementZombieBiteCount(); // เพิ่มจำนวนครั้งที่โดนกัด
+    app.repaint();
+
+    Timer eatTimer = new Timer(1000, e -> {
+        stopWalking();
+        x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
+        app.spawnNewZombie(); // สร้างซอมบี้ตัวใหม่
+        app.repaint();
+        isEating = false; // รีเซ็ตสถานะการกิน
+        ((Timer) e.getSource()).stop();
+    });
+    eatTimer.setRepeats(false);
+    eatTimer.start();
+}
 }
