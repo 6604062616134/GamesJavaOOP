@@ -91,6 +91,7 @@ public class App extends JFrame {
     public static boolean isHurt = false;
     private Timer changeSceneTimer;
     private int zombieBiteCount = 0;
+    private boolean bossSpawned = false;
 
     final private Image[] backgrounds;
 
@@ -108,6 +109,7 @@ public class App extends JFrame {
 
         DrawArea p = new DrawArea();
         p.setLayout(null);
+
         archer = new Archer(this);
 
         zombie = new BasicZombie(this); //polymorphism
@@ -253,6 +255,13 @@ public class App extends JFrame {
             spawnBoss();
             p.repaint();
             an1Timer.stop();
+        });
+
+        be1Timer = new Timer(300, e -> {
+            finishTyped = false;
+            state = 24;
+            p.repaint();
+            be1Timer.stop();
         });
 
         addKeyListener(new KeyAdapter() {
@@ -507,7 +516,7 @@ public class App extends JFrame {
                                     finishTyped = true;
                                     state = 21;
                                     zombieIconX -= 20;
-                                    zombie.stopWalking();
+                                    //zombie.stopWalking();
                                     repaint();
                                 } else if (inputBuffer.length() > 4) {
                                     showTryAgain = true;
@@ -530,7 +539,7 @@ public class App extends JFrame {
                                     state = 23;
                                     zombieIconX -= 18;
                                     zombie.stopWalking();
-                                    //spawnBoss();
+                                    spawnBoss();
                                     be1Timer.start();
                                     repaint();
                                 } else if (inputBuffer.length() > 7) {
@@ -569,11 +578,12 @@ public class App extends JFrame {
     }
 
     private void spawnBoss() {
-        // if (zombie != null) {
-        //     zombie.stopWalking();
-        // }
-        zombie = new Boss(this);
-        // zombie.startWalking();
+        if (zombie != null) {
+            zombie.stopWalking();
+        }
+        Boss boss = new Boss(this);
+        boss.startBossTimer();
+        zombie = boss; // ตั้งค่า zombie เป็น instance ของ Boss
         repaint();
     }
 
@@ -663,21 +673,23 @@ public class App extends JFrame {
 
                 //boss
                 if (zombie instanceof Boss) {
-                    g.drawImage(((Boss) zombie).getImgBoss(), zombiex, zombiey, 500, 700, this);
-                }
-
-                if (zombie.getX() >= 0) {
-                    if (isHurt) {
-                        g.drawImage(zombie.getImgZombieHurt(), zombiex, zombiey, 120, 150, this);
-                        isHurt = false;
-                    } else {
-                        g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
+                    Boss boss = (Boss) zombie;
+                    boss.startBossTimer(); // เรียกใช้ startBossTimer
+                    g.drawImage(boss.getImgBoss(), zombiex, zombiey-200, 300, 400, this);
+                } else {
+                    if (zombie.getX() >= 0) {
+                        if (isHurt) {
+                            g.drawImage(zombie.getImgZombieHurt(), zombiex, zombiey, 120, 150, this);
+                            isHurt = false;
+                        } else {
+                            g.drawImage(zombie.getCurrentImage(), zombiex, zombiey, 120, 150, this);
+                        }
                     }
-                }
 
-                if (zombie.checkCollisionWithArcher(archer)) {
-                    g.drawImage(zombie.getImgZombieEat(), zombiex, zombiey, 120, 150, this);
-                    zombie.eatArcher();
+                    if (zombie.checkCollisionWithArcher(archer)) {
+                        g.drawImage(zombie.getImgZombieEat(), zombiex, zombiey, 120, 150, this);
+                        zombie.eatArcher();
+                    }
                 }
 
                 switch (state) {
@@ -715,7 +727,6 @@ public class App extends JFrame {
                             zombiex = -1000;
                             //repaint();
                         }
-                        //g.drawImage(text.getImgwater2(), textX + 20, textY, 270, 50, this);
                         break;
 
                     //medium
@@ -732,10 +743,10 @@ public class App extends JFrame {
                         g.drawImage(text.getImghistory2(), textX, textY, 330, 50, this);
                         break;
                     case 14:
-                        g.drawImage(text.getImgindustry1(), textX-10, textY, 360, 50, this);
+                        g.drawImage(text.getImgindustry1(), textX - 10, textY, 360, 50, this);
                         break;
                     case 15:
-                        g.drawImage(text.getImgindustry2(), textX-10, textY, 360, 50, this);
+                        g.drawImage(text.getImgindustry2(), textX - 10, textY, 360, 50, this);
                         break;
                     case 16:
                         g.drawImage(text.getImgmethod1(), textX + 10, textY, 300, 50, this);

@@ -5,7 +5,7 @@ public class MediumZombie extends Zombie{
 
     @Override
     public void moveLeft() {
-        x -= 5;
+        x -= 7;
         isImageZombie = !isImageZombie;
     }
 }

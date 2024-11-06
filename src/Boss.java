@@ -1,6 +1,7 @@
 import java.awt.Image;
 import java.net.URL;
 import javax.swing.ImageIcon;
+import javax.swing.Timer;
 
 public class Boss extends Zombie{
     public Image imgBossDead;
@@ -9,6 +10,9 @@ public class Boss extends Zombie{
     public Image imgBossNormal;
     public Image imgBossWalk;
     public Image imgBossHurtWalk;
+    private boolean bossiswalking = false;
+    private Timer BossTimer;
+    //private Image currentImageBoss = imgBossNormal;
 
     public Boss(App app) {
         super(app);
@@ -30,6 +34,32 @@ public class Boss extends Zombie{
 
         URL bossHurtWalk = getClass().getResource("/boss/bosshurtwalk.png");
         imgBossHurtWalk = new ImageIcon(bossHurtWalk).getImage();
+
+        currentImageZombie = imgBossNormal;
+
+        BossTimer = new Timer(1000, e -> {
+            moveLeft();
+            currentImageZombie = (currentImageZombie == imgBossWalk) ? imgBossNormal : imgBossWalk;
+            app.repaint();
+        });
+    }
+
+    public void startBossTimer() {
+        BossTimer.start();
+    }
+
+    public void stopBossTimer() {
+        BossTimer.stop();
+    }
+
+    // public Image getCurrentBoss(){
+    //     return currentImageBoss;
+    // }
+
+    @Override
+    public void moveLeft(){
+        x -= 2;
+        isImageZombie = !isImageZombie;
     }
 
     public Image getImgBossDead() {
@@ -45,7 +75,7 @@ public class Boss extends Zombie{
     }
 
     public Image getImgBoss() {
-        return imgBossNormal;
+        return currentImageZombie;
     }
 
     public Image getImgBossWalk() {

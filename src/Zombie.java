@@ -82,7 +82,7 @@ public abstract class Zombie {
     }
 
     public void moveLeft() {
-        x -= 2;
+        x -= 4;
         isImageZombie = !isImageZombie;
     }
 
