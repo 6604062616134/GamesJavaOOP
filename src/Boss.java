@@ -157,8 +157,8 @@ public class Boss {
         isEating = true; // ตั้งสถานะว่าบอสกำลังกิน
     
         System.out.println("Boss is eating");
-        app.getArcher().setDead(); // ตั้งค่า archer ให้ตาย
-        app.repaint();
+        // app.getArcher().setDead(); // ตั้งค่า archer ให้ตาย
+        // app.repaint();
     
         Timer eatTimer = new Timer(1000, e -> {
             stopWalking();

@@ -99,6 +99,8 @@ public class App extends JFrame {
                 exitBtn.setVisible(false);
                 menuBtn.setVisible(false);
                 showTitle = false;
+                state = 0;
+                currentBgIndex = 0;
                 // zombieBiteCount = 0;
         
                 archer.resetPosition();
@@ -140,14 +142,14 @@ public class App extends JFrame {
                 winning = false;
                 losing = false;
                 zombieBiteCount = 0;
+                startBtn.setVisible(true);
+                exitBtn.setVisible(true);
         
                 archer.resetPosition();
                 boss = null; // รีเซ็ตบอส
                 zombie = new BasicZombie(App.this); // สร้างซอมบี้ใหม่
         
                 // แสดงปุ่มสตาร์ทและปุ่มออกอีกครั้ง
-                startBtn.setVisible(true);
-                exitBtn.setVisible(true);
         
                 // รีเฟรชหน้าจอ
                 repaint();
@@ -841,7 +843,7 @@ public class App extends JFrame {
         if (winning) {
             boss.bossdead(true);
         } else if (losing) {
-            archer.setDead(); // ตั้งค่าให้ archer แสดงภาพตาย
+            archer.archerdead(true); // ตั้งค่าให้ archer แสดงภาพตาย
         }
 
         menuBtn.setVisible(true); // แสดงปุ่มเมนูเมื่อเกมจบ
@@ -946,6 +948,8 @@ public class App extends JFrame {
                     if (boss.checkCollisionWithArcher(archer)) {
                         boss.bossEat();
                         archer.setDead();
+                        losing = true; // ตั้งค่าสถานะการแพ้
+                        gameOver(); // เรียกใช้ฟังก์ชัน gameOver เพื่อจบเกม
                     }
                 } else {
                     if (zombie.getX() >= 0) {
@@ -963,10 +967,10 @@ public class App extends JFrame {
                     }
                 }
 
-                if (archer.isDead) {
-                    losing = true;
-                    gameOver();
-                }
+                // if (archer.isDead) {
+                //     losing = true;
+                //     gameOver();
+                // }
 
                 switch (state) {
                     //easy
@@ -1136,15 +1140,17 @@ public class App extends JFrame {
                 }
             } else if (!gameStarted && (winning || losing)) {
                 menuBtn.setVisible(false); // ซ่อนปุ่มเมนู
-            
+        
                 if (winning) {
                     System.out.println("Winning");
-                    g.drawImage(boss.imgBossDead, boss.getX(), boss.getY() - 200, 300, 400, this);
+                    if (boss != null) {
+                        g.drawImage(boss.imgBossDead, boss.getX(), boss.getY() - 200, 300, 400, this);
+                    }
                     g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
-                    g.drawImage(c.getImgWin(), 1200 / 2 - 500 / 2, 150, 700, 200, this);
+                    g.drawImage(c.getImgWin(), 1200 / 2 - 500 / 2, 150, 500, 120, this);
                 } else if (losing) {
                     g.drawImage(archer.imgDead, archer.getX(), archer.getY(), 150, 150, this);
-                    g.drawImage(c.getImgLose(), 1200/2+200, 150, 300, 130, this);
+                    g.drawImage(c.getImgLose(), 1200 / 2 - 500 / 2, 150, 500, 120, this);
                 }
                 menuBtn.setVisible(true); // แสดงปุ่มเมนู
             }

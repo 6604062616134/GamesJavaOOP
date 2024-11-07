@@ -146,8 +146,15 @@ public class Archer {
     }
 
     public void setDead() {
-        isDead = true; // ตั้งค่าสถานะการตาย
+        // isDead = true; // ตั้งค่าสถานะการตาย
         currentImage = imgDead; // เปลี่ยนภาพเป็นภาพตาย
+    }
+
+    public void archerdead(boolean lose){
+        System.out.println("Archer is dead");
+        stopWalking();
+        setDead();
+        app.repaint();
     }
 
     public void shoot() {
