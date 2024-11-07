@@ -3,7 +3,9 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
-public class Boss extends Zombie{
+public class Boss {
+    private int x = 750; // Initial x position
+    private final int y = 350; // Fixed y position
     public Image imgBossDead;
     public Image imgBossHurt;
     public Image imgBossDamaged;
@@ -11,22 +13,23 @@ public class Boss extends Zombie{
     public Image imgBossWalk;
     public Image imgBossHurtWalk;
     private boolean bossiswalking = false;
-    private Timer BossTimer;
-    //private Image currentImageBoss = imgBossNormal;
+    public Timer BossTimer;
+    public Image currentimgBoss;
+    public Timer BossDamagedTimer;
+    private App app;
+    private boolean isEating = false;
+    private boolean bossDamageiswalking = false;
 
     public Boss(App app) {
-        super(app);
+        this.app = app;
 
-        URL bossDead = getClass().getResource("/boss/boss1.png");
-        imgZombie = new ImageIcon(bossDead).getImage();
+        URL bossDead = getClass().getResource("/boss/bossdead.png");
+        imgBossDead = new ImageIcon(bossDead).getImage();
 
-        URL bossHurt = getClass().getResource("/boss/boss2.png");
-        imgZombieHurt = new ImageIcon(bossHurt).getImage();
+        URL bossDamaged = getClass().getResource("/boss/bossdamage.png");
+        imgBossDamaged = new ImageIcon(bossDamaged).getImage();
 
-        URL bossDamaged = getClass().getResource("/boss/boss3.png");
-        imgZombieEat = new ImageIcon(bossDamaged).getImage();
-
-        URL bossNormal = getClass().getResource("/boss/boss4.png");
+        URL bossNormal = getClass().getResource("/boss/bossnormal.png");
         imgBossNormal = new ImageIcon(bossNormal).getImage();
 
         URL bossWalk = getClass().getResource("/boss/bosswalk.png");
@@ -35,12 +38,29 @@ public class Boss extends Zombie{
         URL bossHurtWalk = getClass().getResource("/boss/bosshurtwalk.png");
         imgBossHurtWalk = new ImageIcon(bossHurtWalk).getImage();
 
-        currentImageZombie = imgBossNormal;
+        //currentimgBoss = imgBossNormal;
 
-        BossTimer = new Timer(1000, e -> {
-            moveLeft();
-            currentImageZombie = (currentImageZombie == imgBossWalk) ? imgBossNormal : imgBossWalk;
+        if(bossiswalking){
+            currentimgBoss = imgBossWalk;
+        }
+        BossTimer = new Timer(500, e -> {
+            if (bossiswalking) {
+                moveLeft(); // ใช้ moveLeft เพื่อให้บอสเดิน
+                // สลับภาพระหว่าง imgBossWalk และ imgBossHurtWalk
+                currentimgBoss = (currentimgBoss == imgBossWalk) ? imgBossNormal : imgBossWalk;
+            }
             app.repaint();
+        });
+
+        if(bossDamageiswalking){
+            currentimgBoss = imgBossHurtWalk;
+        }
+        BossDamagedTimer = new Timer(500, e -> {
+            //currentimgBoss = imgBossDamaged;
+            if(bossDamageiswalking){
+                moveLeft();
+                currentimgBoss = (currentimgBoss == imgBossHurtWalk) ? imgBossDamaged : imgBossHurtWalk;
+            }
         });
     }
 
@@ -52,37 +72,110 @@ public class Boss extends Zombie{
         BossTimer.stop();
     }
 
-    // public Image getCurrentBoss(){
-    //     return currentImageBoss;
-    // }
-
-    @Override
-    public void moveLeft(){
-        x -= 2;
-        isImageZombie = !isImageZombie;
+    public void startWalking() {
+        bossiswalking = true;
+        BossTimer.start();
     }
 
-    public Image getImgBossDead() {
-        return imgBossDead;
+    public void stopWalking() {
+        bossiswalking = false;
+        BossTimer.stop();
     }
 
-    public Image getImgBossHurt() {
+    public void startHurtwalkingTimer(){
+        BossDamagedTimer.start();
+    }
+
+    public void stopHurtwalkingTimer(){
+        BossDamagedTimer.stop();
+    }
+
+    public void startHurtWalking() {
+        bossDamageiswalking = true;
+        BossDamagedTimer.start();
+    }
+
+    public void stopHurtWalking() {
+        bossiswalking = false;
+        BossDamagedTimer.stop();
+    }
+
+    public void moveLeft() {
+        x -= 8;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public Image getcurrentimgboss() {
+        return currentimgBoss;
+    }
+
+    public Image getimgbosshurt() {
         return imgBossHurt;
     }
 
-    public Image getImgBossDamaged() {
-        return imgBossDamaged;
+    public Image getimgbossdead() {
+        return imgBossDead;
     }
 
-    public Image getImgBoss() {
-        return currentImageZombie;
-    }
-
-    public Image getImgBossWalk() {
+    public Image getimgbosswalk() {
         return imgBossWalk;
     }
 
-    public Image getImgBossHurtWalk() {
+    public Image getimgbosshurtwalk() {
         return imgBossHurtWalk;
+    }
+
+    public void setBossDead() {
+        currentimgBoss = imgBossDead; // เปลี่ยนภาพเป็นภาพตาย
+    }
+
+    public boolean checkCollisionWithArcher(Archer archer) {
+        int collisionBuffer = 120; // ระยะห่างที่ต้องการให้บอสเข้ามาใกล้ archer มากขึ้น
+    
+        Image archerImage = archer.getCurrentImage();
+        if (archerImage == null) {
+            return false; // ถ้า archerImage เป็น null ให้ return false
+        }
+    
+        return this.x < (archer.getX() - collisionBuffer) + archerImage.getWidth(null)
+                && this.x + this.currentimgBoss.getWidth(null) > (archer.getX() - collisionBuffer)
+                && this.y < archer.getY() + archerImage.getHeight(null)
+                && this.y + this.currentimgBoss.getHeight(null) > archer.getY();
+    }
+
+    public void bossEat() {
+        if (isEating) {
+            return; // ถ้ากำลังกินอยู่ ให้ return ออกไป
+        }
+        isEating = true; // ตั้งสถานะว่าบอสกำลังกิน
+    
+        System.out.println("Boss is eating");
+        app.getArcher().setDead(); // ตั้งค่า archer ให้ตาย
+        app.repaint();
+    
+        Timer eatTimer = new Timer(1000, e -> {
+            stopWalking();
+            //x = -1000; // ย้ายบอสออกจากหน้าจอ
+            app.gameOver(); // เรียกใช้ฟังก์ชัน gameOver เพื่อจบเกม
+            app.repaint();
+            isEating = false; // รีเซ็ตสถานะการกิน
+            ((Timer) e.getSource()).stop();
+        });
+        eatTimer.setRepeats(false);
+        eatTimer.start();
+    }
+
+    public void bossdead(boolean win){
+        System.out.println("Boss is dead");
+        stopHurtWalking();
+        setBossDead(); //show boss dead pic
+        app.repaint();
     }
 }

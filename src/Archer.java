@@ -23,6 +23,8 @@ public class Archer {
     private Timer hurtTimer;
     private App app;
     public boolean isHurt = false;
+    public Image imgDead;
+    public boolean isDead = false;
 
     public Archer(App app) {
         this.x = 250;
@@ -44,6 +46,9 @@ public class Archer {
 
         URL charHurt = getClass().getResource("/character/hurt.png");
         Image imgHurt = new ImageIcon(charHurt).getImage();
+
+        URL charDead = getClass().getResource("/character/dead.png");
+        Image imgDead = new ImageIcon(charDead).getImage();
 
         // โหลดภาพลูกศร
         URL arrow = getClass().getResource("/character/arrow.png");
@@ -140,6 +145,11 @@ public class Archer {
         return currentImage;
     }
 
+    public void setDead() {
+        isDead = true; // ตั้งค่าสถานะการตาย
+        currentImage = imgDead; // เปลี่ยนภาพเป็นภาพตาย
+    }
+
     public void shoot() {
         if (isAttacking) {
             return; // ถ้ากำลังโจมตีอยู่แล้ว ไม่ให้ยิงอีก
@@ -152,7 +162,7 @@ public class Archer {
         // สร้างลูกศรใหม่และเพิ่มลงในอาร์เรย์
         arrows.add(new Arrow(300, 435, imgArrow));
     
-        Timer attackTimer = new Timer(200, new ActionListener() { 
+        Timer attackTimer = new Timer(100, new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
                 currentImage = imgStand;

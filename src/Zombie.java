@@ -7,12 +7,12 @@ import javax.swing.Timer;
 public abstract class Zombie {
 
     protected int x = 900;
-    protected final int y = 350;
+    protected int y = 350;
     protected boolean zombieisWalking = false;
     protected Timer zombieTimer;
     protected boolean isImageZombie = true;
     protected Image currentImageZombie;
-    private App app;
+    protected App app;
     public Timer ZombieHurtTimer;
     private boolean hurt = false;
     private boolean isEating = false;
@@ -29,24 +29,6 @@ public abstract class Zombie {
     URL zombieEat = getClass().getResource("/zombie/zombieeat.png");
     Image imgZombieEat = new ImageIcon(zombieEat).getImage();
 
-    URL bossDead = getClass().getResource("/boss/boss1.png");
-    Image imgBossDead = new ImageIcon(bossDead).getImage();
-
-    URL bossHurt = getClass().getResource("/boss/boss2.png");
-    Image imgBossHurt = new ImageIcon(bossHurt).getImage();
-
-    URL bossDamaged = getClass().getResource("/boss/boss3.png");
-    Image imgBossDamaged = new ImageIcon(bossDamaged).getImage();
-
-    URL boss = getClass().getResource("/boss/boss4.png");
-    Image imgBoss = new ImageIcon(boss).getImage();
-
-    URL bossWalk = getClass().getResource("/boss/bosswalk.png");
-    Image imgBossWalk = new ImageIcon(bossWalk).getImage();
-
-    URL bossHurtWalk = getClass().getResource("/boss/bosshurtwalk.png");
-    Image imgBossHurtWalk = new ImageIcon(bossHurtWalk).getImage();
-
     public Zombie(App app) {
         this.app = app;
         zombieTimer = new Timer(200, e -> {
@@ -57,7 +39,7 @@ public abstract class Zombie {
             app.repaint();
         });
 
-        ZombieHurtTimer = new Timer(100, e -> {
+        ZombieHurtTimer = new Timer(300, e -> {
             currentImageZombie = imgZombieHurt;
             takeDamage();
             app.repaint();
@@ -134,7 +116,7 @@ public abstract class Zombie {
         hurtTimer.setRepeats(false);
         hurtTimer.start();
 
-        // ตั้งเวลาให้ซอมบี้หายไปหลังจากแสดงภาพ hurt เสร็จสิ้น (เช่น หลัง 2 วินาที)
+        // ตั้งเวลาให้ซอมบี้หายไปหลังจากแสดงภาพ hurt เสร็จสิ้น
         Timer removeZombieTimer = new Timer(500, ev -> {
             stopWalking();
             x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
@@ -160,26 +142,26 @@ public abstract class Zombie {
     }
 
     public void eatArcher() {
-    if (isEating) {
-        return; // ถ้ากำลังกินอยู่ ให้ return ออกไป
-    }
-    isEating = true; // ตั้งสถานะว่าซอมบี้กำลังกิน
-
-    System.out.println("Zombie is eating");
-    currentImageZombie = imgZombieEat; // เปลี่ยนภาพเป็นการกิน
-    app.getArcher().getArcherHurtImg(); // เรียกใช้ฟังก์ชันให้ archer แสดงภาพเจ็บ
-    app.incrementZombieBiteCount(); // เพิ่มจำนวนครั้งที่โดนกัด
-    app.repaint();
-
-    Timer eatTimer = new Timer(1000, e -> {
-        stopWalking();
-        x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
-        app.spawnNewZombie(); // สร้างซอมบี้ตัวใหม่
+        if (isEating) {
+            return; // ถ้ากำลังกินอยู่ ให้ return ออกไป
+        }
+        isEating = true; // ตั้งสถานะว่าซอมบี้กำลังกิน
+    
+        System.out.println("Zombie is eating");
+        currentImageZombie = imgZombieEat; // เปลี่ยนภาพเป็นการกิน
+        app.getArcher().getArcherHurtImg(); // เรียกใช้ฟังก์ชันให้ archer แสดงภาพเจ็บ
+        app.incrementZombieBiteCount(); // เพิ่มจำนวนครั้งที่โดนกัด
         app.repaint();
-        isEating = false; // รีเซ็ตสถานะการกิน
-        ((Timer) e.getSource()).stop();
-    });
-    eatTimer.setRepeats(false);
-    eatTimer.start();
-}
+    
+        Timer eatTimer = new Timer(1000, e -> {
+            stopWalking();
+            x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
+            app.spawnNewZombie(); // สร้างซอมบี้ตัวใหม่
+            app.repaint();
+            isEating = false; // รีเซ็ตสถานะการกิน
+            ((Timer) e.getSource()).stop();
+        });
+        eatTimer.setRepeats(false);
+        eatTimer.start();
+    }
 }
