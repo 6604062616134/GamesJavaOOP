@@ -20,11 +20,12 @@ public class Archer {
     public boolean isAttacking = false;
     private ArrayList<Arrow> arrows; // รายการลูกศรที่ยิงออกไป
     private Image imgArrow;
-    private Timer hurtTimer;
+    public Timer hurtTimer;
     private App app;
     public boolean isHurt = false;
     public Image imgDead;
     public boolean isDead = false;
+    public boolean archerIsHurt = false;
 
     public Archer(App app) {
         this.x = 250;
@@ -74,7 +75,7 @@ public class Archer {
             }
         });
 
-        hurtTimer = new Timer(500, new ActionListener() {
+        hurtTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 currentImage = imgStand; // กลับเป็นภาพปกติ
@@ -86,11 +87,13 @@ public class Archer {
         hurtTimer.setRepeats(false);
     }
 
-    public void getArcherHurtImg() {
-        isHurt = true;
-        currentImage = imgHurt;
-        hurtTimer.start(); // เริ่ม hurtTimer ก่อน
-        app.repaint(); // เรียก repaint หลังเริ่ม timer
+    public void archerHurt() {
+        if (!isHurt) {
+            isHurt = true;
+            currentImage = imgHurt;
+            hurtTimer.start();
+            app.repaint();
+        }
     }
 
     public void startWalking() {
@@ -145,15 +148,15 @@ public class Archer {
         return currentImage;
     }
 
-    public void setDead() {
-        // isDead = true; // ตั้งค่าสถานะการตาย
-        currentImage = imgDead; // เปลี่ยนภาพเป็นภาพตาย
+    public void resetDead() {
+        isDead = false; // รีเซ็ตสถานะการตาย
+        currentImage = imgStand; // เปลี่ยนภาพเป็นภาพปกติ
     }
 
-    public void archerdead(boolean lose){
+    public void archerdead(){
         System.out.println("Archer is dead");
-        stopWalking();
-        setDead();
+        isDead = true;
+        currentImage = imgDead;
         app.repaint();
     }
 
@@ -161,7 +164,6 @@ public class Archer {
         if (isAttacking) {
             return; // ถ้ากำลังโจมตีอยู่แล้ว ไม่ให้ยิงอีก
         }
-    
         System.out.println("Shooting arrow");
         isAttacking = true;
         currentImage = imgAttacking;

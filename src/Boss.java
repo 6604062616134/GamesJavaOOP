@@ -4,8 +4,8 @@ import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
 public class Boss {
-    private int x = 750; // Initial x position
-    private final int y = 350; // Fixed y position
+    private int x = 850;
+    private final int y = 350;
     public Image imgBossDead;
     public Image imgBossHurt;
     public Image imgBossDamaged;
@@ -38,15 +38,12 @@ public class Boss {
         URL bossHurtWalk = getClass().getResource("/boss/bosshurtwalk.png");
         imgBossHurtWalk = new ImageIcon(bossHurtWalk).getImage();
 
-        //currentimgBoss = imgBossNormal;
-
         if(bossiswalking){
             currentimgBoss = imgBossWalk;
         }
         BossTimer = new Timer(500, e -> {
             if (bossiswalking) {
-                moveLeft(); // ใช้ moveLeft เพื่อให้บอสเดิน
-                // สลับภาพระหว่าง imgBossWalk และ imgBossHurtWalk
+                moveLeft();
                 currentimgBoss = (currentimgBoss == imgBossWalk) ? imgBossNormal : imgBossWalk;
             }
             app.repaint();
@@ -56,7 +53,6 @@ public class Boss {
             currentimgBoss = imgBossHurtWalk;
         }
         BossDamagedTimer = new Timer(500, e -> {
-            //currentimgBoss = imgBossDamaged;
             if(bossDamageiswalking){
                 moveLeft();
                 currentimgBoss = (currentimgBoss == imgBossHurtWalk) ? imgBossDamaged : imgBossHurtWalk;
@@ -101,7 +97,7 @@ public class Boss {
     }
 
     public void moveLeft() {
-        x -= 8;
+        x -= 12;
     }
 
     public int getX() {
@@ -157,13 +153,9 @@ public class Boss {
         isEating = true; // ตั้งสถานะว่าบอสกำลังกิน
     
         System.out.println("Boss is eating");
-        // app.getArcher().setDead(); // ตั้งค่า archer ให้ตาย
-        // app.repaint();
-    
+
         Timer eatTimer = new Timer(1000, e -> {
             stopWalking();
-            //x = -1000; // ย้ายบอสออกจากหน้าจอ
-            app.gameOver(); // เรียกใช้ฟังก์ชัน gameOver เพื่อจบเกม
             app.repaint();
             isEating = false; // รีเซ็ตสถานะการกิน
             ((Timer) e.getSource()).stop();

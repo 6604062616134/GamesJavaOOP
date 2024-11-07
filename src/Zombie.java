@@ -1,12 +1,10 @@
-
 import java.awt.Image;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
 public abstract class Zombie {
-
-    protected int x = 900;
+    protected int x = 950;
     protected int y = 350;
     protected boolean zombieisWalking = false;
     protected Timer zombieTimer;
@@ -31,27 +29,19 @@ public abstract class Zombie {
 
     public Zombie(App app) {
         this.app = app;
-        zombieTimer = new Timer(200, e -> {
+        zombieTimer = new Timer(300, e -> { 
             zombieisWalking = true;
             startWalking();
             currentImageZombie = imgZombieWalk;
             moveLeft();
             app.repaint();
         });
-
-        ZombieHurtTimer = new Timer(300, e -> {
-            currentImageZombie = imgZombieHurt;
-            takeDamage();
-            app.repaint();
-        });
-
     }
 
     public void startWalking() {
         zombieTimer.start();
         zombieisWalking = true;
         currentImageZombie = imgZombieWalk;
-        //System.out.println("Zombie is walking");
     }
 
     public void stopWalking() {
@@ -64,7 +54,7 @@ public abstract class Zombie {
     }
 
     public void moveLeft() {
-        x -= 4;
+        x -= 12;
         isImageZombie = !isImageZombie;
     }
 
@@ -100,7 +90,6 @@ public abstract class Zombie {
         if (hurt) {
             return;
         }
-
         hurt = true;
         currentImageZombie = getImgZombieHurt(); // เปลี่ยนเป็นภาพ "hurt"
         app.repaint(); // อัพเดตหน้าจอทันทีเพื่อแสดงภาพ hurt
@@ -115,16 +104,6 @@ public abstract class Zombie {
         });
         hurtTimer.setRepeats(false);
         hurtTimer.start();
-
-        // ตั้งเวลาให้ซอมบี้หายไปหลังจากแสดงภาพ hurt เสร็จสิ้น
-        Timer removeZombieTimer = new Timer(500, ev -> {
-            stopWalking();
-            x = -1000; // ย้ายซอมบี้ออกจากหน้าจอ
-            app.repaint();
-            ((Timer) ev.getSource()).stop();
-        });
-        removeZombieTimer.setRepeats(false);
-        removeZombieTimer.start();
     }
 
     public boolean checkCollisionWithArcher(Archer archer) {
@@ -149,7 +128,7 @@ public abstract class Zombie {
     
         System.out.println("Zombie is eating");
         currentImageZombie = imgZombieEat; // เปลี่ยนภาพเป็นการกิน
-        app.getArcher().getArcherHurtImg(); // เรียกใช้ฟังก์ชันให้ archer แสดงภาพเจ็บ
+        app.getArcher().archerHurt(); // เรียกใช้ฟังก์ชันให้ archer แสดงภาพเจ็บ
         app.incrementZombieBiteCount(); // เพิ่มจำนวนครั้งที่โดนกัด
         app.repaint();
     

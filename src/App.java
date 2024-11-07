@@ -1,9 +1,11 @@
+
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
 import javax.swing.*;
 
 public class App extends JFrame {
+
     //bg
     URL bg1 = getClass().getResource("/background/IMG_0984.png");
     Image imgBG = new ImageIcon(bg1).getImage();
@@ -62,7 +64,6 @@ public class App extends JFrame {
     private boolean losing = false;
     final private Image[] backgrounds;
     private int zombieIconX = 1090; // ตำแหน่ง x ของไอคอนซอมบี้
-    private Timer endGameTimer;
 
     private Archer archer;
     private Zombie zombie;
@@ -73,7 +74,6 @@ public class App extends JFrame {
     private JButton startBtn, exitBtn, menuBtn;
 
     App() {
-
         archer = new Archer(this);
         zombie = new BasicZombie(this); //polymorphism
         text = new Text();
@@ -98,15 +98,18 @@ public class App extends JFrame {
                 startBtn.setVisible(false);
                 exitBtn.setVisible(false);
                 menuBtn.setVisible(false);
+                zombieIconX = 1090;
                 showTitle = false;
                 state = 0;
-                currentBgIndex = 0;
-                // zombieBiteCount = 0;
-        
+                currentBgIndex = 0; // รีเซ็ต currentBgIndex
+                currentBackground = backgrounds[currentBgIndex]; // รีเซ็ต currentBackground
+                zombieBiteCount = 0; // รีเซ็ต zombieBiteCount
+
                 archer.resetPosition();
+                archer.resetDead(); // รีเซ็ตสถานะของอาเชอร์
                 boss = null; // รีเซ็ตบอส
                 zombie = new BasicZombie(App.this); // สร้างซอมบี้ใหม่
-        
+
                 repaint();
                 zombie.startWalking();
             }
@@ -135,22 +138,22 @@ public class App extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // ซ่อนปุ่มเมนูหลังจากกด
                 menuBtn.setVisible(false);
-        
+
                 // รีเซ็ตสถานะเกมทั้งหมด
                 showTitle = true;
                 gameStarted = false;
                 winning = false;
                 losing = false;
                 zombieBiteCount = 0;
+                currentBgIndex = 0; // รีเซ็ต currentBgIndex
+                currentBackground = backgrounds[currentBgIndex]; // รีเซ็ต currentBackground
                 startBtn.setVisible(true);
                 exitBtn.setVisible(true);
-        
+
                 archer.resetPosition();
+                archer.resetDead(); // รีเซ็ตสถานะของอาเชอร์
                 boss = null; // รีเซ็ตบอส
-                zombie = new BasicZombie(App.this); // สร้างซอมบี้ใหม่
-        
-                // แสดงปุ่มสตาร์ทและปุ่มออกอีกครั้ง
-        
+
                 // รีเฟรชหน้าจอ
                 repaint();
             }
@@ -264,7 +267,7 @@ public class App extends JFrame {
             finishTyped = false;
             state = 22;
             spawnBoss();
-            //p.repaint();
+            p.repaint();
             an1Timer.stop();
         });
 
@@ -389,7 +392,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 1;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking(); // หยุดซอมบี้ตัวปัจจุบัน
                                     spawnNewZombie(); // สร้างซอมบี้ตัวใหม่
                                     house1Timer.start(); // แสดงคำต่อไป
@@ -408,7 +411,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 3;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking();
                                     spawnNewZombie();
                                     morning1Timer.start();
@@ -427,7 +430,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 5; // เปลี่ยนไปคำถัดไป
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking();
                                     spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
                                     music1Timer.start();
@@ -446,7 +449,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 7; // เปลี่ยนไปคำถัดไป
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 29;
                                     zombie.stopWalking();
                                     spawnNewZombie(); // ซอมบี้ตัวใหม่เริ่มเดิน
                                     water1Timer.start(); // แสดงคำต่อไป
@@ -465,7 +468,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 9;
-                                    zombieIconX -= 19;
+                                    zombieIconX -= 30;
                                     repaint();
                                 } else if (inputBuffer.length() > 5) {
                                     showTryAgain = true;
@@ -487,7 +490,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 11;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking();
                                     spawnMediumZombie();
                                     history1Timer.start();
@@ -506,7 +509,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 13;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking();
                                     spawnMediumZombie();
                                     industry1Timer.start();
@@ -525,7 +528,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 15;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking();
                                     spawnMediumZombie();
                                     method1Timer.start();
@@ -544,7 +547,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 17;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 27;
                                     zombie.stopWalking();
                                     spawnMediumZombie();
                                     relation1Timer.start();
@@ -563,7 +566,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 19;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 29;
                                     zombie.stopWalking();
                                     spawnMediumZombie();
                                     task1Timer.start();
@@ -582,7 +585,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 21;
-                                    zombieIconX -= 20;
+                                    zombieIconX -= 30;
                                     //zombie.stopWalking();
                                     repaint();
                                 } else if (inputBuffer.length() > 4) {
@@ -596,6 +599,7 @@ public class App extends JFrame {
                             default:
                                 break;
                         }
+
                         switch (state) {
                             case 22:
                                 if (inputBuffer.toString().equalsIgnoreCase("analyze")) {
@@ -604,7 +608,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 23;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     zombie.stopWalking();
                                     spawnBoss();
                                     be1Timer.start();
@@ -623,7 +627,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 25;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     zombie.stopWalking();
                                     spawnBoss();
                                     ce1Timer.start();
@@ -642,7 +646,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 27;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     zombie.stopWalking();
                                     spawnBoss();
                                     de1Timer.start();
@@ -661,7 +665,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 29;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     zombie.stopWalking();
                                     spawnBoss();
                                     dr1Timer.start();
@@ -680,7 +684,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 31;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     zombie.stopWalking();
                                     spawnHurtBoss();
                                     e1Timer.start();
@@ -699,7 +703,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 33;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     boss.stopHurtWalking();
                                     spawnHurtBoss();
                                     et1Timer.start();
@@ -718,7 +722,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 35;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     boss.stopHurtWalking();
                                     spawnHurtBoss();
                                     obs1Timer.start();
@@ -737,7 +741,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 37;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     boss.stopHurtWalking();
                                     spawnHurtBoss();
                                     se1Timer.start();
@@ -756,7 +760,7 @@ public class App extends JFrame {
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
                                     state = 39;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
                                     boss.stopHurtWalking();
                                     spawnHurtBoss();
                                     syn1Timer.start();
@@ -772,18 +776,17 @@ public class App extends JFrame {
                                 if (inputBuffer.toString().equalsIgnoreCase("synonym")) {
                                     archer.shoot();
                                     state = 41;
-                                    winning = true;
-                                    gameOver();
                                     inputBuffer.setLength(0);
                                     finishTyped = true;
-                                    zombieIconX -= 18;
+                                    zombieIconX -= 12;
+                                    gameOver(true, false, false);
                                     repaint();
                                 } else if (inputBuffer.length() > 7) {
                                     showTryAgain = true;
                                     tryAgainTimer.start();
                                     inputBuffer.setLength(0);
                                     repaint();
-                                } 
+                                }
                                 break;
                             default:
                                 break;
@@ -835,15 +838,22 @@ public class App extends JFrame {
         repaint();
     }
 
-    public void gameOver() {
+    public void gameOver(boolean winning, boolean losing, boolean killedByBoss) {
         gameStarted = false; // หยุดเกม
         showTitle = false; // ไม่แสดงหน้าจอเริ่มต้นใหม่
         showTryAgain = false; // ไม่แสดงปุ่มลองอีกครั้ง
 
+        this.winning = winning;
+        this.losing = losing;
+
         if (winning) {
             boss.bossdead(true);
         } else if (losing) {
-            archer.archerdead(true); // ตั้งค่าให้ archer แสดงภาพตาย
+            if (killedByBoss) {
+                archer.archerdead();
+            } else {
+                archer.archerdead();
+            }
         }
 
         menuBtn.setVisible(true); // แสดงปุ่มเมนูเมื่อเกมจบ
@@ -855,9 +865,9 @@ public class App extends JFrame {
             zombieBiteCount++;
         }
         if (zombieBiteCount >= 3) {
-            archer.setDead(); // ตั้งค่า archer ให้ตาย
             losing = true; // ตั้งค่าสถานะการแพ้
-            gameOver(); // เรียกใช้ฟังก์ชัน gameOver เพื่อจบเกม
+            winning = false; // ตั้งค่าสถานะการชนะ
+            gameOver(winning, losing, false);
         }
     }
 
@@ -927,11 +937,13 @@ public class App extends JFrame {
                         break;
                 }
 
-                g.drawImage(c.getImgBar(), barX-70, barY, 400, 20, this);
-                g.drawImage(c.getImgZombieIcon(), zombieIconX+30, zombieIconY, 50, 50, this);
+                g.drawImage(c.getImgBar(), barX - 70, barY, 400, 20, this);
+                g.drawImage(c.getImgZombieIcon(), zombieIconX + 30, zombieIconY, 50, 50, this);
 
-                if (archer.isHurt) {
+                if (archer.archerIsHurt) {
                     g.drawImage(archer.imgHurt, archer.getX(), archer.getY(), 150, 150, this);
+                } else if (archer.isDead) {
+                    g.drawImage(archer.imgDead, archer.getX(), archer.getY(), 150, 150, this);
                 } else {
                     g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
                 }
@@ -947,9 +959,8 @@ public class App extends JFrame {
                     // ตรวจสอบการชนกันระหว่างบอสและ archer
                     if (boss.checkCollisionWithArcher(archer)) {
                         boss.bossEat();
-                        archer.setDead();
-                        losing = true; // ตั้งค่าสถานะการแพ้
-                        gameOver(); // เรียกใช้ฟังก์ชัน gameOver เพื่อจบเกม
+                        gameOver(false, true, true); // เรียกใช้ฟังก์ชัน gameOver เพื่อจบเกม
+                        g.drawImage(boss.getcurrentimgboss(), boss.getX(), boss.getY() - 200, 300, 400, this);
                     }
                 } else {
                     if (zombie.getX() >= 0) {
@@ -964,13 +975,9 @@ public class App extends JFrame {
                     if (zombie.checkCollisionWithArcher(archer)) {
                         g.drawImage(zombie.getImgZombieEat(), zombiex, zombiey, 120, 150, this);
                         zombie.eatArcher();
+                        losing = true; // ตั้งค่าสถานะการแพ้
                     }
                 }
-
-                // if (archer.isDead) {
-                //     losing = true;
-                //     gameOver();
-                // }
 
                 switch (state) {
                     //easy
@@ -1004,8 +1011,8 @@ public class App extends JFrame {
                     case 9:
                         g.drawImage(text.getImgwater2(), textX + 20, textY, 270, 50, this);
                         if (zombie != null) {
-                            zombie.stopWalking();
-                            zombiex = -1000;
+                            //zombie.stopWalking();
+                            zombie.x = -1000;
                             //repaint();
                         }
                         break;
@@ -1047,8 +1054,8 @@ public class App extends JFrame {
                     case 21:
                         g.drawImage(text.getImgtask2(), textX + 40, textY, 200, 50, this);
                         if (zombie != null) {
-                            zombie.stopWalking();
-                            zombiex = -1000;
+                            //zombie.stopWalking();
+                            zombie.x = -1000;
                             //repaint();
                         }
                         break;
@@ -1060,10 +1067,10 @@ public class App extends JFrame {
                         g.drawImage(text.getImgan2(), textX, textY, 300, 50, this);
                         break;
                     case 24:
-                        g.drawImage(text.getImgbe1(), textX, textY, 360, 50, this);
+                        g.drawImage(text.getImgbe1(), textX - 30, textY, 360, 50, this);
                         break;
                     case 25:
-                        g.drawImage(text.getImgbe2(), textX, textY, 360, 50, this);
+                        g.drawImage(text.getImgbe2(), textX - 30, textY, 360, 50, this);
                         break;
                     case 26:
                         g.drawImage(text.getImgce1(), textX + 30, textY, 250, 50, this);
@@ -1078,10 +1085,10 @@ public class App extends JFrame {
                         g.drawImage(text.getImgde2(), textX, textY, 350, 50, this);
                         break;
                     case 30:
-                        g.drawImage(text.getImgdr1(), textX, textY, 280, 50, this);
+                        g.drawImage(text.getImgdr1(), textX, textY, 260, 50, this);
                         break;
                     case 31:
-                        g.drawImage(text.getImgdr2(), textX, textY, 280, 50, this);
+                        g.drawImage(text.getImgdr2(), textX, textY, 260, 50, this);
                         break;
                     case 32:
                         g.drawImage(text.getImge1(), textX, textY, 300, 50, this);
@@ -1108,11 +1115,11 @@ public class App extends JFrame {
                         g.drawImage(text.getImgse2(), textX, textY, 300, 50, this);
                         break;
                     case 40:
-                        g.drawImage(text.getImgsyn1(), textX, textY, 350, 50, this);
+                        g.drawImage(text.getImgsyn1(), textX, textY, 360, 50, this);
                         break;
                     case 41:
-                        g.drawImage(text.getImgsyn2(), textX, textY, 350, 50, this);
-                        if(boss != null){
+                        g.drawImage(text.getImgsyn2(), textX, textY, 360, 50, this);
+                        if (boss != null) {
                             boss.stopHurtWalking();
                         }
                         break;
@@ -1125,32 +1132,32 @@ public class App extends JFrame {
                     g.drawImage(c.getImgTryAgain(), 475, 600, 200, 30, this);
                 }
 
-                //g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
                 for (Archer.Arrow arrow : archer.getArrows()) {
                     arrow.move();
                     g.drawImage(arrow.getImg(), arrow.getX(), arrow.getY(), 80, 30, null);
 
-                    if (arrow.getX() + 80 > zombie.getX() && arrow.getX() < zombie.getX() + 120
+                    if (arrow.getX() > zombie.getX() && arrow.getX() < zombie.getX() + 80
                             && arrow.getY() + 30 > zombie.getY() && arrow.getY() < zombie.getY() + 150) {
 
-                        archer.getArrows().remove(arrow);
                         zombie.takeDamage();
+                        archer.getArrows().remove(arrow);
                         break;
                     }
                 }
             } else if (!gameStarted && (winning || losing)) {
                 menuBtn.setVisible(false); // ซ่อนปุ่มเมนู
-        
                 if (winning) {
-                    System.out.println("Winning");
+                    // System.out.println("Winning");
                     if (boss != null) {
                         g.drawImage(boss.imgBossDead, boss.getX(), boss.getY() - 200, 300, 400, this);
                     }
                     g.drawImage(archer.getCurrentImage(), archer.getX(), archer.getY(), 150, 150, this);
-                    g.drawImage(c.getImgWin(), 1200 / 2 - 500 / 2, 150, 500, 120, this);
+                    g.drawImage(c.getImgWin(), 1200 / 2 - 500 / 2, 150, 510, 70, this);
                 } else if (losing) {
+                    // System.out.println("Losing");
+                    // g.drawImage(boss.getcurrentimgboss() boss.getX(), boss.getY() - 200, 300, 400, this);
                     g.drawImage(archer.imgDead, archer.getX(), archer.getY(), 150, 150, this);
-                    g.drawImage(c.getImgLose(), 1200 / 2 - 500 / 2, 150, 500, 120, this);
+                    g.drawImage(c.getImgLose(), 420, 150, 380, 160, this);
                 }
                 menuBtn.setVisible(true); // แสดงปุ่มเมนู
             }
